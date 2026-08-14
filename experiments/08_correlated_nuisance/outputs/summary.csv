@@ -1,0 +1,2 @@
+m_fragments,pointer_flip_p,shots_per_candidate,trials,epsilon,richness_tolerance_bits,nuisance_selected_fraction,mean_selected_D,mean_selected_I_XZ_bits,mean_pointer_D,mean_pointer_I_XZ_bits
+4,0.03,600,1000,0.1,0.03,1.0,0.0,0.00118,0.067698,0.806308
