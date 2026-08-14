@@ -1,0 +1,84 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,mathtools,amsthm}
+\usepackage{graphicx}
+\graphicspath{{figures/}{/mnt/data/}}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage[nameinlink,noabbrev]{cleveref}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{setspace}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+
+\definecolor{linkblue}{RGB}{24,74,128}
+\hypersetup{colorlinks=true,linkcolor=linkblue,citecolor=linkblue,urlcolor=linkblue,pdftitle={Environment-Induced Quantum Learning - Version 3}}
+\setstretch{1.04}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.48em}
+\setlist[itemize]{topsep=0.25em,itemsep=0.15em,leftmargin=1.6em}
+\setlist[enumerate]{topsep=0.25em,itemsep=0.15em,leftmargin=1.8em}
+\titleformat{\section}{\large\bfseries}{\thesection}{0.55em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{0.5em}{}
+
+\setlength{\headheight}{14pt}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{Environment-Induced Quantum Learning}
+\fancyhead[R]{Version 3 - theory + simulation}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.3pt}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}{Proposition}
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
+\newtheorem{definition}{Definition}
+\newtheorem{remark}{Remark}
+
+\newcommand{\tr}{\operatorname{Tr}}
+\newcommand{\supp}{\operatorname{supp}}
+\newcommand{\TV}{\operatorname{TV}}
+\newcommand{\cL}{c_L}
+\newcommand{\eps}{\varepsilon}
+\newcommand{\Mcal}{\mathcal{M}}
+\newcommand{\Zcal}{\mathcal{Z}}
+\newcommand{\Xcal}{\mathcal{X}}
+\newcommand{\Oeps}{\mathcal{O}_{\eps,L}^{\mathfrak M}}
+
+\begin{document}
+
+\begin{center}
+{\LARGE\bfseries Environment-Induced Quantum Learning (EIQL)}\\[0.45em]
+{\large Self-Supervised Measurement Discovery from Redundant Quantum Records}\\[0.7em]
+{\normalsize Version 3 - Theory and Simulation Manuscript}\\
+{\small 14 August 2026}
+\end{center}
+
+\vspace{0.5em}
+\begin{abstract}
+Environment-Induced Quantum Learning (EIQL) is a quantum measurement-learning framework in which redundancy across independently accessible environmental fragments supplies the self-supervised signal for discovering an initially unknown local decoder. The abstract principle of agreement across multiple views is not claimed to be new; the quantum operational distinction is that the representation is not an already available classical feature map but must be physically instantiated by choosing a POVM on each fragment. EIQL therefore asks which hardware-constrained local measurements produce outputs that are simultaneously rich and mutually consistent, without target labels, without a specified target measurement, and without requiring direct access to the system.
+
+The theory identifies pointer information under learned local decoders rather than a unique physical POVM. Under exact spectrum broadcast structure (SBS), exact rich agreement forces every local output to be a deterministic coarse-graining of the pointer variable; when the output alphabet and hardware class resolve the record supports, the pointer information is recovered up to relabeling. For states close to SBS, high richness and low disagreement imply a quantitative residual-uncertainty bound and a simple explicit Bayes-recovery certificate. A finite-shot proposition certifies pre-specified finite decoder classes. Theory-matched five-qubit simulations reproduce an analytic independent-product null ceiling and remain separated from the null under a simple NISQ-style noise model. A second benchmark, based on the published six-photon Quantum-Darwinism architecture of Chen et al., hides an independent local basis on every environmental record: EIQL recovers the strong-record decoders, identifies the three reliable fragments in the mixed-quality setting, and approaches the physical disagreement floor. Finally, an environment-only pair-moment implementation is compared at equal copy budget with a stronger system-assisted correlation baseline and with full Pauli tomography in measurement-setting count. These results support EIQL as a specific quantum learning formulation; they do not establish quantum advantage or universal resource superiority.
+\end{abstract}
+
+\textbf{Status and scope.} This Version 3 manuscript freezes the first-paper scope at theory plus simulation. The mathematical statements are conditional theorems under explicit assumptions, and all numerical results are simulation results unless stated otherwise. No quantum advantage, hardware advantage, or unique-POVM recovery is claimed. A real-hardware EIQL demonstration is left as future work rather than treated as a prerequisite for the present paper. Literature positioning has been checked through 14 August 2026, with particular attention to Quantum Darwinism experiments, unknown-measurement learning, self-supervised quantum learning, and unsupervised observable discovery.
+
+\tableofcontents
+\newpage
+
+\input{sections/01_core_theory}
+\input{sections/02_robust_finite_protocol}
+\input{sections/03_numerical_benchmarks}
+\input{sections/04_positioning_limits_conclusion}
+\input{sections/05_appendix_reproducibility_bibliography}
+
+\end{document}
