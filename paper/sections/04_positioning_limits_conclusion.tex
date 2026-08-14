@@ -1,0 +1,124 @@
+\section{Novelty positioning and neighboring literature}
+
+The publication claim must be narrower than the v1 wording. The following distinctions are central.
+
+\begin{table}[H]
+\centering
+\caption{What is established prior art, and what EIQL proposes to add.}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{0.29\textwidth}X}
+\toprule
+Established direction & Relation to EIQL \\
+\midrule
+Environment as witness / Quantum Darwinism \cite{ollivier2004,ollivier2005} & Establishes redundant environmental records and the selection of pointer information. EIQL does not claim this mechanism as new.\\
+SBS and strong Quantum Darwinism \cite{horodecki2015,le2019} & Supplies the structural model used in the exact and robust theorems.\\
+Uniqueness of redundant imprints \cite{fu2021} & Shows that pointer-observable uniqueness under redundant imprint conditions is already a dedicated theorem topic. EIQL therefore does not market Theorem~\ref{thm:exact} as the primary novelty.\\
+Observer consensus \cite{touil2025} & Proves agreement among observers with informative fragments. EIQL asks the different operational question of learning the unknown local measurement/decoder that generates a rich agreeing variable.\\
+Observer resource dependence \cite{feller2023} & Shows that accessible fragments and measurement resources matter for reconstructing the classical picture, reinforcing the need for an explicit hardware-constrained learning formulation.\\
+Experimental Quantum Darwinism \cite{chen2019,saini2020,chisholm2022,zhu2025} & Establishes photonic and processor-based generation/witnessing of redundant records, and in Zhu et al. a designed inexpensive local witness. EIQL uses these works as physical motivation but treats the environmental decoder as initially unknown and learned.\\
+Petz recovery of Darwinian information \cite{torvinen2026} & Studies a specified recovery map from fragments. EIQL instead optimizes an unknown decoder from repeated data under an explicit self-supervised objective.\\
+Gacs--Korner common information \cite{gacs1973,csirmaz2023} & Provides the classical mathematical archetype: the richest deterministic common variable. EIQL embeds a related idea into quantum measurement selection and hardware constraints.\\
+Quantum self-supervised learning \cite{jaderberg2021} & Establishes that self-supervised objectives already exist in quantum learning. EIQL's distinction is the physical unknown-decoder task induced by environmental redundancy, not self-supervision by itself.\\
+Learning unknown quantum measurements \cite{cheng2016} & Learns an externally specified unknown target measurement from training information and studies sample complexity of that target class. EIQL has no target measurement labels; redundancy across same-event fragments generates the training criterion.\\
+Unsupervised observable discovery \cite{sadoune2023} & Learns interpretable characteristic observables/order parameters from quantum measurement data without Hamiltonian labels. EIQL instead searches for local decoders whose outputs are redundantly aligned across independently accessible environmental fragments.\\
+Quantum-learning statistical complexity \cite{banchi2023} & Highlights data, copy, and model complexity in quantum learning. EIQL's finite-class proposition is a deliberately simple copy-complexity certificate, while adaptive and continuous decoder classes remain open.\\
+Redundancy versus consensus \cite{chisholm2023} & Shows that these notions need not coincide. EIQL therefore defines its operational objective directly through aligned worst-pair decoder disagreement and minimum fragment richness rather than treating foundations terminology as interchangeable.\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Accordingly, the strongest defensible novelty hypothesis is:
+
+\begin{quote}
+EIQL is a quantum measurement-learning framework that extends the principle of multiview agreement to quantum environmental records, where the representation must itself be physically instantiated through a learned measurement. Its specific learning signal is same-event redundancy across independently accessible fragments, and near SBS states the resulting agreement-richness objective carries quantitative pointer-information guarantees.
+\end{quote}
+
+The novelty claim is intentionally at the level of a quantum learning framework/problem formulation, not a new universal paradigm. Direct literature comparison found strong neighboring results in Quantum Darwinism, consensus, unknown-measurement learning, quantum self-supervision, and unsupervised observable discovery, but not the same combination of unknown local decoders, environment-only same-event redundancy as supervision, and pointer-information guarantees. Because terminology differs across fields, this remains a claim for external referee scrutiny rather than an assertion of exhaustive uniqueness.
+
+\section{What is quantum in EIQL?}
+
+The redundantly objective variable in an SBS state is classical. The quantum content lies in three places:
+
+\begin{enumerate}
+\item \textbf{The records are quantum states.} Before measurement, each fragment is described by a density operator and incompatible observables are not simultaneously available as a classical feature vector.
+\item \textbf{The representation is a POVM.} Learning means choosing a physically implementable measurement/decoder, not merely selecting a coordinate from an already classical data table.
+\item \textbf{The redundancy is generated by quantum dynamics.} Entangling system-environment interactions, decoherence, and einselection determine which record can proliferate.
+\end{enumerate}
+
+Once measurement outcomes have been produced, the disagreement and entropy statistics are classical. This is why Version 3 uses the narrower subtitle ``Self-Supervised Measurement Discovery from Redundant Quantum Records'' rather than language suggesting that an arbitrary quantum state itself becomes an objective classical fact.
+
+\section{Relation to variational QML and barren plateaus}
+
+EIQL is not defined by a parameterized circuit. In the finite candidate protocol of \cref{prop:finite}, learning is discrete measurement selection, and the statistical difficulty is shot complexity rather than gradient concentration. In the single-qubit simulation, each candidate is just a local projective basis.
+
+This is a design-level avoidance of one common source of barren plateaus, not a universal trainability guarantee. A future EIQL implementation could itself parameterize deep measurement circuits, in which case barren plateaus or other nonconvex pathologies may return. The correct claim is therefore:
+
+\begin{quote}
+Barren plateaus are not intrinsic to the minimal EIQL formulation because EIQL does not require deep variational quantum-circuit training.
+\end{quote}
+
+The broader barren-plateau literature remains directly relevant if richer decoder classes are implemented variationally \cite{mcclean2018,larocca2024}.
+
+\section{Interpretability and downstream use}
+
+EIQL produces an operationally interpretable object: a local decoder behavior (defined modulo equivalence on the relevant record states) and a common classical outcome variable. For each learned representation one can report:
+
+\begin{itemize}
+\item the decoder behavior implemented on each fragment, reported modulo operational equivalence on the relevant record states;
+\item the worst-pair disagreement $D_\rho$;
+\item the minimum fragment entropy $R_\rho$;
+\item the full frontier $\mathcal O_{\eps,L}^{\mathfrak M}$ as a reliability--richness tradeoff;
+\item ablations showing which fragments are necessary for the common record.
+\end{itemize}
+
+This form of interpretability is physical and operational rather than post-hoc. It does not imply causality: a redundantly shared variable can still be a nuisance variable if the physical process broadcasts that nuisance. Any downstream application therefore needs independent task validation.
+
+A classical multimodal analogue---for example blood, MRI, and ECG measurements from one patient---can use the same redundancy principle, but such a model is not quantum merely because it was inspired by EIQL. The genuinely quantum version requires quantum fragments and learned POVMs.
+
+\section{Limitations and falsification criteria}
+
+EIQL should be considered falsified or substantially weakened as a useful framework if one or more of the following persist under stronger analysis:
+
+\begin{enumerate}
+\item \textbf{No novelty after direct comparison.} Existing work may already contain the same hardware-constrained, unknown-decoder learning problem with comparable robust and finite-sample guarantees.
+\item \textbf{Objective degeneracy.} Large classes of non-Darwinian states may achieve the same agreement-richness frontier as SBS-like states without meaningful record structure.
+\item \textbf{Sample and setting complexity beyond the structured qubit model.} The pair-moment benchmark in \cref{fig:settings} is favorable relative to full Pauli tomography but exploits binary, conditionally independent qubit records. General POVM classes or higher-dimensional fragments may require substantially more copies and settings.
+\item \textbf{No real-hardware EIQL result.} The simple stress test in \cref{fig:noisy} and the Chen/resource benchmarks are simulations. Crosstalk, coherent calibration errors, time-correlated drift, leakage, and fragment non-independence may create spurious agreement or erase the operational gap between stable and control dynamics. A hardware run is useful validation but is outside the scope frozen for Version 3.
+\item \textbf{Theorem vacuity.} If realistic states cannot be related to an SBS reference with useful $\eta$, the robust theorem may remain mathematically correct but physically uninformative.
+\end{enumerate}
+
+The no-collision control in \cref{fig:frontier} already illustrates why both low disagreement and high richness are necessary. A nearly deterministic measurement can manufacture agreement from independent product fragments, but it cannot simultaneously produce one bit of common richness at small $\eps$.
+
+\section{Open theoretical problems}
+
+The most important next problems are now well defined.
+
+\begin{enumerate}
+\item \textbf{Continuous measurement classes.} Replace the finite-class bound in \cref{prop:finite} by covering-number or geometry-aware bounds for POVM manifolds.
+\item \textbf{Approximate structure without an SBS oracle.} Reverse part of the present logic: derive approximate latent broadcast structure from operational EIQL properties of $\rho$ itself, such as multiple rich agreeing local decoders or approximate conditional-independence/recoverability conditions. This would turn EIQL from a learning layer conditioned on nearby SBS structure into a possible diagnostic of Darwinian structure.
+\item \textbf{General independent null ceilings.} Extend \cref{lem:independent} from i.i.d. Bernoulli fragments to non-identically distributed and $L$-ary independent fragments, yielding a broader operational null ceiling for agreement-richness witnesses.
+\item \textbf{Fragment correlations.} Quantify how violations of strong conditional independence modify \cref{thm:robust}. Strong Quantum Darwinism and SBS literature shows that this distinction is nontrivial \cite{le2019}.
+\item \textbf{Adaptive and collective measurements.} Determine when local independent POVMs are statistically suboptimal relative to adaptive or collective fragment strategies.
+\item \textbf{General resource theory.} Extend the structured pair-moment benchmark into copy-, setting-, and runtime-complexity bounds for general fragment dimensions, decoder classes, and access models (environment-only versus direct system access).
+\item \textbf{Operational equivalence and identifiability at nonzero $\eps$.} Richness can be flat over many physically distinct POVMs. Characterize when the minimum-disagreement tie-break converges to a unique decoder equivalence class on the relevant record family.
+\item \textbf{Downstream learning.} Determine when an EIQL-discovered variable improves prediction, control, or sensing relative to tomography-first and supervised alternatives.
+\end{enumerate}
+
+\section{Proposed definition of EIQL}
+
+A concise formal definition of the research program is:
+
+\begin{definition}[Environment-Induced Quantum Learning]
+An EIQL problem consists of (i) repeated physical access to multiple quantum fragments generated by a common underlying process, (ii) a hardware-constrained class of local measurements or instruments, and (iii) an unlabeled objective that rewards information which is simultaneously rich and redundantly recoverable across the fragments. A learned representation is a physical decoder/measurement, and its statistical quality is evaluated operationally from repeated measurement outcomes.
+\end{definition}
+
+For the present theory, the canonical objective is \cref{eq:objective}. The exact SBS theorem identifies its zero-error structure. The robust theorem states when high empirical-quality outputs imply pointer recoverability. The finite-class proposition turns the objective into a finite-shot learning problem.
+
+\section{Conclusion}
+
+Version 3 frames EIQL as a specific quantum measurement-learning framework rather than a new universal learning paradigm. Quantum Darwinism, SBS, redundant-imprint uniqueness, observer consensus, and experimental witnessing of Darwinian records are established prior art. Classical common-information and multiview-agreement principles also make clear that ``learn what multiple views agree on'' is not itself the contribution.
+
+The proposed learning problem begins where those ingredients leave an operational gap: the observer is not handed the environmental decoder. It must choose a physically implementable local measurement whose outcomes are both rich and redundant across independently accessible fragments generated by the same event. Under exact SBS, exact agreement identifies deterministic coarse-grainings of the pointer variable; near SBS, the robust theorem bounds residual pointer uncertainty; and finite pre-specified decoder classes admit explicit finite-shot guarantees. These statements concern pointer information and decoder behavior on the relevant record family, not uniqueness of a POVM operator on the full Hilbert space.
+
+The numerical evidence now has three layers. First, theory-matched collision simulations reproduce the analytic independent-product null ceiling, separate stable redundant dynamics from controls, pass a lower-tail permutation test, and retain a finite operating region under a simple depolarizing-plus-readout noise model. Second, a benchmark based on the published Chen et al. photonic architecture learns independently hidden local decoders and identifies the strong-record subset without system labels. Third, a pair-moment spectral implementation recovers decoder directions without direct system access and is compared against both a stronger system-assisted task-specific baseline and full tomography in measurement-setting count. The comparison is deliberately qualified: EIQL avoids full-state reconstruction, but it is not universally cheaper than every task-specific method that is allowed to interrogate the system directly.
+
+The first-paper scope therefore stops at theory plus reproducible simulation. A real-hardware EIQL run would be useful follow-up evidence, but it is not required for the logical claims made here. The remaining scientific questions are whether the formulation survives broader literature scrutiny, how far the guarantees extend beyond nearby SBS/product-record structure, and what resource advantages or disadvantages appear under realistic access constraints.
