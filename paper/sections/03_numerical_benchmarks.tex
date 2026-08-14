@@ -1,0 +1,245 @@
+\section{Numerical studies aligned with the EIQL objective}
+
+All numerical results in this section optimize the same EIQL objective used in the theory: maximum minimum-fragment entropy subject to a worst-pair disagreement constraint. Earlier mutual-information-based exploratory simulations are not used as evidence for the theorems.
+
+\subsection{Five-qubit collision model}
+
+The simulated register contains one system qubit and four environment qubits,
+\[
+S+E_1+E_2+E_3+E_4.
+\]
+For each dynamical case, the hidden system basis and the \emph{common} hidden environmental basis are randomized independently of one another by $SU(2)$ rotations. The environmental basis is shared across the four fragments; it is not independently randomized for each environment qubit. The system begins in an equal superposition of its hidden pointer eigenstates and every environment qubit begins in the same hidden record state. In the stable cases, each collision uses
+\begin{equation}
+U_j=\exp\!\left[-i\gamma\,P_{1,S}\otimes Y_E\right],
+\label{eq:collision}
+\end{equation}
+where $P_{1,S}$ is the hidden system pointer projector and $Y_E$ is a Pauli axis in the common hidden environmental basis. The learner is not given either basis.
+
+The hardware class is deliberately narrow: the same one-qubit projective measurement axis is used on every fragment. Candidate axes are sampled uniformly on the Bloch sphere. This tied-decoder restriction is smaller than the full POVM class of the theorems.
+
+The dynamical cases are stable-perfect ($\gamma=\pi/2$), stable-partial ($\gamma=\pi/3$), drift-15deg (perfect collisions plus a $15^\circ$ system rotation between collisions), scrambled-system (the system coupling projector is independently randomized at each collision), and no-collision ($\gamma=0$).
+
+\subsection{Monte-Carlo approximation to the population frontier}
+
+The continuous Bloch-sphere optimum is approximated by 6000 randomly sampled measurement axes per dynamical case. Therefore the numerical quantity plotted below is a Monte-Carlo lower bound on the optimum over the continuous tied-axis hardware class, not an exact population frontier.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.88\textwidth]{eiql_v21_frontier.png}
+\caption{Monte-Carlo approximation to the EIQL population agreement-richness frontier using 6000 randomly sampled Bloch axes per case. The dashed curve is the analytic independent-product binary baseline from \cref{lem:independent}. Perfect stable dynamics support one bit at very small disagreement, while the no-collision control follows the independent baseline.}
+\label{fig:frontier}
+\end{figure}
+
+At $\eps=0.01$, the stable-perfect model attains one bit within the sampled class with tie-break disagreement $3.71\times10^{-4}$, while the no-collision control reaches about $0.0453$ bit. At $\eps=0.10$, stable-perfect remains at one bit, stable-partial is still infeasible, drift remains feasible and rich, and the scrambled-system model remains infeasible in the tested tied-axis class. The no-collision Monte-Carlo value is $0.2975$ bit, matching the analytic independent-product benchmark to numerical search precision.
+
+\begin{lemma}[Independent binary baseline]
+\label{lem:independent}
+Suppose the fragment outputs are independent and identically distributed Bernoulli variables with $P(Z_j=1)=p$. Then
+\[
+D=2p(1-p),\qquad R=h_2(p).
+\]
+For $0\le\eps\le1/2$, the maximum richness compatible with $D\le\eps$ is
+\begin{equation}
+R_{\mathrm{ind}}(\eps)=
+h_2\!\left(\frac{1-\sqrt{1-2\eps}}{2}\right).
+\label{eq:indbaseline}
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+For independent Bernoulli outputs, disagreement is $P(0,1)+P(1,0)=2p(1-p)$. The entropy $h_2(p)$ increases as $p$ moves from $0$ toward $1/2$. Under $2p(1-p)\le\eps$, the entropy-maximizing feasible point lies at equality and has $p=(1-\sqrt{1-2\eps})/2$, up to the entropy-symmetric replacement $p\mapsto1-p$.
+\end{proof}
+
+This lemma formalizes why agreement alone is insufficient: nearly deterministic independent outputs can have very small disagreement, but their richness is necessarily small. Genuine redundant records can lie far above this independent baseline.
+
+\subsection{Search convergence}
+
+Because the stable-perfect balanced model has a flat one-bit marginal-entropy maximum, the practical lexicographic tie-break is what localizes the record axis. A nested random-axis study shows systematic convergence of the best disagreement among near-maximal-richness candidates: the disagreement decreases from $4.46\times10^{-2}$ with 50 axes to $9.0\times10^{-5}$ with 20000 axes, while the angle to the hidden record axis decreases from $17.4^\circ$ to $0.77^\circ$.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.78\textwidth]{eiql_v21_search_convergence.png}
+\caption{Monte-Carlo search convergence in the stable-perfect population model. Increasing the number of randomly sampled Bloch axes improves the minimum-disagreement representative selected among near-maximal-richness candidates.}
+\label{fig:convergence}
+\end{figure}
+
+\subsection{Finite-shot measurement discovery}
+
+At $\eps=0.10$, each candidate receives 600 fresh shots, 500 candidate axes are searched, and 20 independent searches are performed for each dynamical case. Population validation is then computed on the selected axis. Table~\ref{tab:finite} reports mean $\pm$ standard deviation; the accompanying text also gives 95\% confidence-interval half-widths for the principal quantities.
+
+\begin{table}[H]
+\centering
+\caption{Finite-shot EIQL at $\eps=0.10$. Values are population validation of measurements learned from finite-shot data over 20 independent searches per case.}
+\label{tab:finite}
+\begin{tabular}{lcccc}
+\toprule
+Case & Feasible & $\min_j H(Z_j)$ & $D_{\max}$ & Axis error \\
+\midrule
+stable-perfect & 1.00 & $1.000\pm0.000$ & $0.00194\pm0.00168$ & $3.30^\circ\pm1.41^\circ$\\
+drift-15deg & 1.00 & $1.000\pm0.000$ & $0.04732\pm0.00461$ & $7.16^\circ\pm2.71^\circ$\\
+no-collision & 1.00 & $0.252\pm0.022$ & $0.08089\pm0.00889$ & not physically diagnostic\\
+stable-partial & 0.00 & -- & -- & --\\
+scrambled-system & 0.00 & -- & -- & --\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+For stable-perfect, the 95\% confidence-interval half-width is approximately $7.4\times10^{-4}$ for $D_{\max}$ and $0.62^\circ$ for axis error. For drift-15deg the corresponding values are about $2.0\times10^{-3}$ and $1.19^\circ$. These uncertainty estimates quantify search-to-search variability; they do not include hardware-model uncertainty because the present study is a noiseless state-vector simulation.
+
+\subsection{Permutation null with the correct tail}
+
+For an independent stable-perfect validation run, the learned decoder representative yielded empirical minimum entropy $0.999946$ bit and worst-pair disagreement
+\[
+D_{\mathrm{obs}}=0.002667
+\]
+on 3000 validation shots. The fragment columns were then independently permuted across physical runs 1000 times. This preserves each single-fragment marginal while destroying same-event correlations. The null disagreement had mean $0.51155$, standard deviation $0.00597$, 5th percentile $0.50233$, and median $0.51100$.
+
+Because the EIQL signal is \emph{small} disagreement, the relevant permutation statistic is the lower tail,
+\begin{equation}
+p_{\mathrm{perm}}=
+\frac{1+\#\{D_{\mathrm{perm}}\le D_{\mathrm{obs}}\}}{B+1}.
+\label{eq:permp}
+\end{equation}
+No permutation among $B=1000$ produced disagreement as small as the observation, giving the corrected Monte-Carlo value
+\[
+p_{\mathrm{perm}}=\frac{1}{1001}\approx9.99\times10^{-4}.
+\]
+This is a simulation diagnostic, not a universal hypothesis test for arbitrary EIQL experiments.
+
+\subsection{NISQ-style noise stress test}
+
+To test whether the agreement-richness separation immediately disappears under elementary device imperfections, we repeated the stable-perfect collision experiment with a density-matrix noise model. After each system--environment collision, the participating qubit pair is subjected to a local two-qubit depolarizing channel
+\begin{equation}
+\rho\mapsto (1-p_2)\rho+p_2\left(\frac{I_{SE_j}}{4}\otimes\tr_{SE_j}\rho\right),
+\label{eq:depol}
+\end{equation}
+with the tensor factor embedded at the original qubit locations. Each final fragment readout is then independently flipped with probability $q$. This is a deliberately simple NISQ-style stress model, not a calibrated model of any particular processor. For a true pairwise disagreement $D$, symmetric independent readout flips transform it to
+\begin{equation}
+D_{\rm obs}=2q(1-q)+(1-2q)^2D.
+\label{eq:readoutdis}
+\end{equation}
+The population search used 5000 random tied Bloch axes at $\eps=0.10$. The tested noise grid was
+\[
+p_2\in\{0,0.002,0.005,0.01,0.02\},\qquad
+q\in\{0,0.005,0.01,0.02,0.05\}.
+\]
+We then repeated representative settings over 12 independently randomized hidden-basis worlds. Each world used independent system and common-environment basis draws and 3500 candidate axes.
+
+\begin{table}[H]
+\centering
+\caption{NISQ-style noise stress test over 12 independently randomized hidden-basis worlds. Richness remains one bit in this balanced binary model, so feasibility is controlled by worst-pair disagreement.}
+\label{tab:noisy}
+\begin{tabular}{lccccc}
+\toprule
+Setting & $p_2$ & $q$ & Feasible & Mean $D_{\max}$ & Axis error \\
+\midrule
+clean & 0 & 0 & 1.00 & $0.00013\pm0.00013$ & $0.82^\circ\pm0.44^\circ$\\
+ mild & 0.005 & 0.01 & 1.00 & $0.02951\pm0.00019$ & $0.96^\circ\pm0.59^\circ$\\
+ moderate & 0.01 & 0.02 & 1.00 & $0.05764\pm0.00029$ & $1.28^\circ\pm0.72^\circ$\\
+ readout-heavy & 0.002 & 0.05 & 1.00 & $0.09834\pm0.00009$ & $0.90^\circ\pm0.36^\circ$\\
+ beyond-$\eps$ & 0.02 & 0.05 & 0.00 & $0.12676\pm0.00023$ & --\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.78\textwidth]{eiql_noisy_nisq_disagreement.png}
+\caption{Worst-pair disagreement under local two-qubit depolarization and symmetric readout flips. The dashed line is the EIQL feasibility tolerance $\eps=0.10$. The stress test shows a finite operating region rather than noise immunity: sufficiently large combined noise pushes the stable record beyond the chosen tolerance.}
+\label{fig:noisy}
+\end{figure}
+
+The clean-to-moderate regime remains well separated from the $\eps=0.10$ boundary, while $5\%$ readout flips become marginal and fail once combined with stronger collision depolarization. Across feasible settings, the learned axis remains within roughly $1$--$1.3^\circ$ on average of the hidden record axis. These results support only a limited claim: the EIQL objective does not collapse under this simple local noise model. They do not substitute for a hardware experiment, calibrated crosstalk/readout models, time-correlated drift, or a scaling study.
+
+Taken together, the noiseless and noisy collision simulations show that the EIQL objective is operational and behaves as designed on a small model. They do not establish computational advantage, favorable asymptotic scaling, or device-independent robustness.
+
+\section{External-architecture benchmark: Chen et al. photonic Quantum Darwinism}
+
+To test EIQL on a structure not invented for this manuscript, we constructed an unknown-decoder benchmark from the six-photon Quantum-Darwinism experiment of Chen et al. \cite{chen2019}. Their system consists of one photon representing the system and five photons representing environmental records. Two published interaction settings are
+\[
+\boldsymbol\theta_A=(180^\circ,180^\circ,180^\circ,180^\circ,180^\circ)
+\]
+and
+\[
+\boldsymbol\theta_B=(180^\circ,180^\circ,180^\circ,72^\circ,100^\circ),
+\]
+so setting $A$ contains five ideal binary records while setting $B$ contains three ideal records and two intrinsically weaker records.
+
+The EIQL modification is deliberately blind: each environmental fragment is independently conjugated by a hidden local $SU(2)$ rotation, and the learner is not given the system label, pointer value, interaction angle, or hidden readout basis. Separate local projective decoders are learned from environmental redundancy alone. The hidden rotations and pointer labels are revealed only after training for evaluation. This converts a published Quantum-Darwinism record architecture into a measurement-learning task without claiming that the original experiment itself performed EIQL.
+
+A multi-start population search was repeated over 12 independently hidden-basis worlds. Table~\ref{tab:chen} compares the learned worst-pair disagreement with the physical floor obtained from the oracle Helstrom record quality.
+
+\begin{table}[H]
+\centering
+\caption{EIQL on the Chen et al. record architecture. The fidelity-proxy rows use an isotropic white-noise approximation matched to the reported full-state fidelities; they are not a reconstruction of the laboratory noise channel.}
+\label{tab:chen}
+\begin{tabular}{lccc}
+\toprule
+Setting & Mean $\min_j H(Z_j)$ & Learned $D_{\max}$ & Oracle floor \\
+\midrule
+$A$ ideal & $1.00000$ & $0.00193\pm0.00093$ & $0$ \\
+$B$ ideal & $0.99910$ & $0.27689\pm0.00496$ & $0.27487$ \\
+$A$ fidelity proxy & $1.00000$ & $0.07987\pm0.01624$ & $0.07162$ \\
+$B$ fidelity proxy & $0.99915$ & $0.35624\pm0.04524$ & $0.34279$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.78\textwidth]{eiql_chen_multistart_vs_oracle.png}
+\caption{Learned worst-pair disagreement on the Chen et al. architecture compared with the oracle physical floor. In the ideal strong-record setting the residual is search error; in the mixed-quality setting the dominant disagreement is intrinsic to the two weak records.}
+\label{fig:chenoracle}
+\end{figure}
+
+The mixed setting also provides a fragment-quality test. EIQL was allowed to rank every three-fragment subset. The correct high-quality subset---photons $2,3,4$, corresponding to the three $180^\circ$ records---was selected in $12/12$ population worlds and $10/10$ finite-shot worlds at 700 shots per estimated statistic. The learner was not given which fragments were strong. This result is stronger than merely recovering one hidden basis: the same redundancy criterion identifies which environmental records are trustworthy.
+
+A finite-shot version gives mean validated disagreement $0.01791$ for $A$ and $0.28420$ for $B$ at 700 shots per estimated statistic. The latter remains close to the physical $B$-setting floor. These experiments are simulations based on the published architecture, not reanalysis of raw photonic events.
+
+\section{Environment-only pair-moment implementation and resource benchmark}
+
+The preceding searches treat EIQL as optimization over candidate decoders. In the binary conditionally independent qubit-record model, the redundancy structure also yields a direct spectral implementation. Let $\mathbf r_{jx}$ be the Bloch vector of fragment $j$ conditioned on the balanced hidden branch $X=x\in\{0,1\}$. Measuring Pauli components $a,b\in\{x,y,z\}$ on fragments $i,j$ gives a centered cross-correlation matrix
+\begin{equation}
+C_{ij}=\frac14\bigl(\mathbf r_{i0}-\mathbf r_{i1}\bigr)
+                 \bigl(\mathbf r_{j0}-\mathbf r_{j1}\bigr)^T.
+\label{eq:pairmoment}
+\end{equation}
+Thus $C_{ij}$ is rank one in the ideal model, and its leading singular directions recover the local binary record directions up to the free sign/output relabeling. For equal priors those directions coincide with the local Helstrom discrimination axes. We use this identity as a task-specific implementation device, not as a novelty claim; related covariance and spectral techniques should be checked before attributing originality to the factorization itself.
+
+To estimate all pair moments without full state tomography, we use a Pauli orthogonal-array schedule in which every pair of fragments encounters all nine ordered Pauli-basis pairs. Five environment fragments require 27 distinct settings. For comparison, a stronger task-specific baseline with direct access to $S$ reconstructs every $S$--$E_j$ $3\times3$ correlation matrix in 9 settings, whereas full Pauli tomography of the six-qubit $S E_1\cdots E_5$ state requires $3^6=729$ settings. The comparison is intentionally not ``EIQL versus only full tomography'': the 9-setting system-assisted baseline is included to avoid an inflated resource claim.
+
+At equal total copy budget, the environment-only spectral EIQL estimator and the system-assisted baseline were evaluated over 40 independently hidden-basis worlds. At 6912 copies per method, the results are:
+
+\begin{table}[H]
+\centering
+\caption{Equal-copy comparison between environment-only EIQL and a stronger system-assisted correlation estimator. Axis error is measured against the hidden local Helstrom directions after training.}
+\label{tab:resource}
+\begin{tabular}{lcccc}
+\toprule
+Setting & EIQL axis error & $S$-assisted axis error & EIQL $D_{\max}$ & $S$-assisted $D_{\max}$ \\
+\midrule
+Chen $A$ strong & $1.63^\circ$ & $2.32^\circ$ & $0.00092$ & $0.00194$ \\
+Chen $B$ mixed & $2.08^\circ$ & $2.65^\circ$ & $0.27536$ & $0.27592$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.82\textwidth]{eiql_vs_tomography_equal_budget.png}
+\caption{Decoder-axis error versus equal total copy budget. The environment-only estimator aggregates redundancy across all fragment pairs, while the comparison baseline has direct access to the system. The numerical advantage in this model is not claimed to be universal.}
+\label{fig:equalbudget}
+\end{figure}
+
+Readout-flip stress at 256 shots per EIQL setting remains close to the corresponding noise-imposed physical floor: in the strong-record case at $q=0.05$, the mean axis error is $2.06^\circ$ and the observed disagreement is $0.09612$ versus an oracle observed floor of $0.095$. An independent-fragment null at the same shot count gives mean spectral pair signal $0.09082$, compared with $0.99931$ for same-event redundant records, while balanced independent fragments have population disagreement $0.5$.
+
+The measurement-setting comparison has very different scaling from full Pauli tomography. For the orthogonal-array construction used here, 9 settings support up to four environment fragments and 27 settings support up to thirteen, while full Pauli tomography of the system plus $m$ fragments scales as $3^{m+1}$.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.78\textwidth]{eiql_vs_tomography_settings_scaling.png}
+\caption{Distinct measurement settings for the task-specific environment-only pair-moment design, the system-assisted pair-correlation baseline, and full Pauli tomography. This figure compares settings, not total runtime or a universal minimax sample complexity.}
+\label{fig:settings}
+\end{figure}
+
+The defensible resource conclusion is narrow: in this structured binary-record task, EIQL can recover hidden environmental decoders without direct system access and without reconstructing the full state. Full tomography is substantially more measurement-setting intensive, but a task-specific method with system access can use fewer settings than EIQL. Therefore Version 3 does not claim universal tomography superiority; it identifies the operational tradeoff created by removing system access and exploiting inter-fragment redundancy.
