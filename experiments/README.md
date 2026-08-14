@@ -25,13 +25,19 @@ Density-matrix NISQ-style stress test with local two-qubit depolarization and sy
 ## `06_chen2019`
 External-architecture benchmark based on the published Chen et al. photonic Quantum-Darwinism interaction settings. Each environment fragment receives an independently hidden local SU(2) basis, turning the published record architecture into an unknown-decoder learning task. Includes multi-start population search, fragment-quality ranking, a fidelity-matched isotropic-noise proxy, and finite-shot statistic search.
 
+## `07_resource_benchmark`
+Environment-only EIQL versus tomography/resource baselines on the hidden-decoder task. Introduces a pairwise Pauli-moment/spectral decoder estimator and an orthogonal-array measurement schedule. Compares EIQL with a stronger task-specific baseline that has direct access to the system qubit, and separately reports full Pauli-QST setting scaling. Includes equal-copy, readout-noise, independent-fragment-null, and measurement-setting-scaling results.
+
+Important caveat: this benchmark is still simulation. It supports decoder recovery without direct system access or full-state reconstruction; it does not establish universal resource superiority over tomography.
+
 ## Evidence hierarchy
 
 For current manuscript claims, weight the experiments approximately as follows:
 
 1. `04_revised_objective` — direct theory/objective consistency;
-2. `05_noisy_nisq` — robustness under a simple hardware-noise model;
-3. `06_chen2019` — external published-architecture benchmark;
-4. `01`–`03` — historical development / stress-test context.
+2. `06_chen2019` — external published-architecture benchmark;
+3. `07_resource_benchmark` — task-specific decoder/resource benchmark and practical moment estimator;
+4. `05_noisy_nisq` — robustness under a simple hardware-noise model;
+5. `01`–`03` — historical development / stress-test context.
 
 None of these is yet a real EIQL hardware run.
