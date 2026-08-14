@@ -103,7 +103,52 @@ At 700 shots per estimated statistic:
 - A ideal: mean validated disagreement `0.01791`
 - B ideal: mean validated disagreement `0.28420`
 
-## 5. Classical multiview sanity check — synthetic medical data
+## 5. EIQL vs tomography/resource benchmark
+
+File: `experiments/07_resource_benchmark/eiql_vs_tomography_resource_benchmark.py`
+
+This benchmark uses the same hidden-decoder record family but replaces brute-force decoder search with an environment-only pair-moment/spectral estimator. It compares EIQL with a deliberately stronger task-specific baseline that has direct access to the system qubit, while full Pauli QST is used separately for settings-scaling context.
+
+### Equal-total-copy comparison — 40 hidden-basis worlds
+
+At 6912 total copies per method:
+
+| Setting | EIQL axis error | S-assisted axis error | EIQL worst disagreement | S-assisted worst disagreement |
+|---|---:|---:|---:|---:|
+| Chen A strong | 1.63254 deg | 2.32299 deg | 0.000922 | 0.001940 |
+| Chen B mixed | 2.07923 deg | 2.65059 deg | 0.275359 | 0.275919 |
+
+For Chen B, the oracle physical worst-pair disagreement floor is approximately `0.274865`.
+
+### Readout-noise stress — 256 shots per EIQL setting, 30 worlds
+
+| Setting | readout q | Mean axis error | Mean observed D | Oracle observed floor |
+|---|---:|---:|---:|---:|
+| A strong | 0.00 | 1.60817 deg | 0.000920 | 0.000000 |
+| A strong | 0.02 | 1.94140 deg | 0.040383 | 0.039200 |
+| A strong | 0.05 | 2.05516 deg | 0.096124 | 0.095000 |
+| B mixed | 0.00 | 2.13605 deg | 0.275533 | 0.274865 |
+| B mixed | 0.02 | 2.33334 deg | 0.293201 | 0.292516 |
+| B mixed | 0.05 | 2.68128 deg | 0.318352 | 0.317641 |
+
+### Independent-fragment null — 60 worlds
+
+- same-event pair signal mean: `0.99931`
+- independent-fragment null pair signal mean: `0.09082`
+- same-event learned worst disagreement mean: `0.00097`
+- balanced independent-fragment population disagreement: `0.5`
+
+### Measurement-setting scaling
+
+For five environment fragments plus one system qubit:
+
+- EIQL environment-only pair-moment design: `27` settings
+- task-specific S-assisted pair tomography: `9` settings
+- full six-qubit Pauli QST: `729` settings
+
+The important caveat is that EIQL is **not** claimed to beat every tomography strategy. The stronger 9-setting S-assisted baseline shows that full QST is not the fairest comparator for this narrow task. The current result supports recovery without direct system access or full-state reconstruction, not universal resource superiority.
+
+## 6. Classical multiview sanity check — synthetic medical data
 
 Auxiliary only; this is not quantum evidence.
 
@@ -120,7 +165,7 @@ EIQL-inspired shifted accuracy with MRI removed at test time: `0.953125`.
 
 The point of this experiment was robustness of a shared-information inductive bias, not superiority over classical multiview methods.
 
-## 6. Iris sanity check
+## 7. Iris sanity check
 
 Across 100 stratified train/test splits:
 
