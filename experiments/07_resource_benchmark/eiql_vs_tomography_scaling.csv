@@ -1,0 +1,12 @@
+environment_fragments_m,total_qubits_if_system_included,EIQL_env_only_pair_moments_settings,system_assisted_pair_tomography_settings,full_Pauli_QST_settings,QST_to_EIQL_setting_ratio
+2,3,9,9,27,3.0
+3,4,9,9,81,9.0
+4,5,9,9,243,27.0
+5,6,27,9,729,27.0
+6,7,27,9,2187,81.0
+7,8,27,9,6561,243.0
+8,9,27,9,19683,729.0
+9,10,27,9,59049,2187.0
+10,11,27,9,177147,6561.0
+11,12,27,9,531441,19683.0
+12,13,27,9,1594323,59049.0
