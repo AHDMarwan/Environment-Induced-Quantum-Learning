@@ -1,0 +1,131 @@
+\appendix
+
+\section{Additional proof details}
+
+\subsection{Monotonicity of $\cL$}
+For $L\ge2$,
+\[
+\cL(t)=h_2(t)+t\log_2(L-1)
+\]
+has derivative
+\[
+\cL'(t)=\log_2\frac{(1-t)(L-1)}{t},
+\]
+so it is nondecreasing on $0\le t\le1-1/L$. This is the range used in \cref{thm:robust} and \cref{prop:finite}.
+
+\subsection{Why the global error-indicator proof is needed}
+The v1 proof bounded $H(Z_j\mid X=x)$ by a function of the conditional disagreement $\delta_x$ and then averaged. That step is unsafe when some $\delta_x>1-1/L$, even if the average disagreement is small. Version 2 instead defines the most likely output $g_j(x)$, proves the global classification error $e\le\delta$, and applies the single global error indicator $E$. No pointwise small-error condition is required.
+
+\section{Reproducibility details for Version 3}
+
+The primary theory-matched collision simulation is implemented in \texttt{eiql\_v21\_simulation.py}. The five-qubit register contains one system qubit and four environment qubits. The system and common environmental bases are independently Haar-randomized by $SU(2)$ draws; the environmental basis is shared across all four environment qubits. Population frontiers use 6000 uniformly random Bloch axes per dynamical case. The search-convergence study uses a nested set of up to 20000 axes.
+
+For finite-shot learning at $\eps=0.10$, each candidate receives 600 fresh shots; 500 candidate axes are searched; 20 independent searches are performed per dynamical case. The lexicographic near-optimality tolerance is $0.03$ bit. The permutation null uses 3000 validation shots and $B=1000$ independent column permutations, with significance computed from the lower tail as in \cref{eq:permp}.
+
+Accompanying result files are:
+\begin{itemize}
+\item \path{eiql_v21_frontier_mc.csv} and \path{eiql_v21_independent_baseline.csv};
+\item \path{eiql_v21_finite_summary.csv} and \path{eiql_v21_permutation_summary.csv};
+\item \path{eiql_v21_search_convergence.csv};
+\item Noisy-NISQ outputs: \path{eiql_noisy_nisq_results.csv};\newline \path{eiql_noisy_nisq_multiseed_summary.csv};\newline \path{eiql_noisy_nisq_simulation.py}.
+\item Chen-architecture benchmark: \path{eiql_chen2019_benchmark.py};\newline \path{eiql_chen_multistart_summary.csv};\newline \path{eiql_chen_finite_stat_summary.csv}.
+\item Resource benchmark: \path{eiql_vs_tomography_resource_benchmark.py};\newline \path{eiql_vs_tomography_summary.csv};\newline \path{eiql_vs_tomography_noise_summary.csv};\newline \path{eiql_vs_tomography_scaling.csv}.
+\end{itemize}
+
+\section{Version 3 change summary}
+
+\begin{enumerate}
+\item Reframed EIQL consistently as a \emph{quantum measurement-learning framework/problem formulation}, not a new universal learning paradigm.
+\item Added explicit discussion of classical common-information/multiview relatives and existing quantum self-supervised learning; the quantum distinction is that the representation is physically created by a learned POVM.
+\item Preserved the Version 2.1 theorem repairs: pointer-information rather than POVM identifiability, free output relabelings, alphabet qualification, robust global-error proof, finite-class finite-shot guarantee, and the independent-product null.
+\item Added the external-architecture benchmark based on Chen et al. (2019), including independently hidden local record bases, mixed record quality, subset discovery, and finite-shot validation.
+\item Added the environment-only pair-moment/spectral implementation and an equal-copy comparison with a stronger system-assisted correlation baseline.
+\item Added measurement-setting scaling against full Pauli tomography while explicitly avoiding a universal tomography-superiority claim.
+\item Froze the first-paper scope at theory plus simulation. A real-hardware run is documented as future validation rather than a prerequisite for Version 3.
+\item Updated novelty positioning against Chen et al., Saini--Behera, Zhu et al., Cheng et al., Sadoune et al., Jaderberg et al., and the established Quantum-Darwinism/SBS literature.
+\end{enumerate}
+
+\begin{thebibliography}{99}
+
+\bibitem{zurek2003}
+W. H. Zurek, ``Decoherence, einselection, and the quantum origins of the classical,'' \emph{Rev. Mod. Phys.} 75, 715 (2003). \href{https://arxiv.org/abs/quant-ph/0105127}{arXiv:quant-ph/0105127}.
+
+\bibitem{ollivier2004}
+H. Ollivier, D. Poulin, and W. H. Zurek, ``Objective Properties from Subjective Quantum States: Environment as a Witness,'' \emph{Phys. Rev. Lett.} 93, 220401 (2004). \href{https://arxiv.org/abs/quant-ph/0307229}{arXiv:quant-ph/0307229}.
+
+\bibitem{ollivier2005}
+H. Ollivier, D. Poulin, and W. H. Zurek, ``Environment as a Witness: Selective Proliferation of Information and Emergence of Objectivity in a Quantum Universe,'' \emph{Phys. Rev. A} 72, 042113 (2005). \href{https://arxiv.org/abs/quant-ph/0408125}{arXiv:quant-ph/0408125}.
+
+\bibitem{horodecki2015}
+R. Horodecki, J. K. Korbicz, and P. Horodecki, ``Quantum Origins of Objectivity,'' \emph{Phys. Rev. A} 91, 032122 (2015). \href{https://arxiv.org/abs/1312.6588}{arXiv:1312.6588}.
+
+\bibitem{le2019}
+T. P. Le and A. Olaya-Castro, ``Strong Quantum Darwinism and Strong Independence are Equivalent to Spectrum Broadcast Structure,'' \emph{Phys. Rev. Lett.} 122, 010403 (2019). \href{https://arxiv.org/abs/1803.08936}{arXiv:1803.08936}.
+
+\bibitem{korbicz2021}
+J. K. Korbicz, ``Roads to objectivity: Quantum Darwinism, Spectrum Broadcast Structures, and strong quantum Darwinism -- a review,'' \emph{Quantum} 5, 571 (2021). \href{https://arxiv.org/abs/2007.04276}{arXiv:2007.04276}.
+
+\bibitem{fu2021}
+H.-F. Fu, ``Uniqueness of the Observable Leaving Redundant Imprints in the Environment in the Context of Quantum Darwinism,'' \emph{Phys. Rev. A} 103, 042210 (2021). \href{https://arxiv.org/abs/2010.14131}{arXiv:2010.14131}.
+
+\bibitem{touil2025}
+A. Touil, B. Yan, and W. H. Zurek, ``Consensus About Classical Reality in a Quantum Universe,'' (2025). \href{https://arxiv.org/abs/2503.14791}{arXiv:2503.14791}.
+
+\bibitem{feller2023}
+A. Feller, B. Roussel, A. Pontlevy, and P. Degiovanni, ``Testing quantum Darwinism dependence on observers' resources,'' (2023). \href{https://arxiv.org/abs/2306.14745}{arXiv:2306.14745}.
+
+\bibitem{chisholm2022}
+D. A. Chisholm, G. Garc\'ia-P\'erez, M. A. C. Rossi, S. Maniscalco, and G. M. Palma, ``Witnessing Objectivity on a Quantum Computer,'' \emph{Quantum Sci. Technol.} 7, 015022 (2022). \href{https://arxiv.org/abs/2110.06243}{arXiv:2110.06243}.
+
+\bibitem{zhu2025}
+Z. Zhu et al., ``Observation of Quantum Darwinism and the Origin of Classicality with Superconducting Circuits,'' (2025). \href{https://arxiv.org/abs/2504.00781}{arXiv:2504.00781}.
+
+\bibitem{torvinen2026}
+J. Torvinen, E. Keski-Vakkuri, and N. Pranzini, ``Quantum Darwinism and the quality of Petz recovery,'' (2026). \href{https://arxiv.org/abs/2605.06848}{arXiv:2605.06848}.
+
+\bibitem{gacs1973}
+P. G\'acs and J. K\"orner, ``Common information is far less than mutual information,'' \emph{Problems of Control and Information Theory} 2(2), 149--162 (1973).
+
+\bibitem{csirmaz2023}
+L. Csirmaz, ``A short proof of the Gacs--Korner theorem,'' (2023). \href{https://arxiv.org/abs/2306.14718}{arXiv:2306.14718}.
+
+\bibitem{winter2016}
+A. Winter, ``Tight uniform continuity bounds for quantum entropies: conditional entropy, relative entropy distance and energy constraints,'' \emph{Commun. Math. Phys.} 347, 291--313 (2016). \href{https://arxiv.org/abs/1507.07775}{arXiv:1507.07775}.
+
+\bibitem{chen2019}
+M.-C. Chen, H.-S. Zhong, Y. Li, D. Wu, X.-L. Wang, L. Li, N.-L. Liu, C.-Y. Lu, and J.-W. Pan, ``Emergence of classical objectivity of quantum Darwinism in a photonic quantum simulator,'' \emph{Science Bulletin} 64, 580--585 (2019). \href{https://doi.org/10.1016/j.scib.2019.03.032}{doi:10.1016/j.scib.2019.03.032}; \href{https://arxiv.org/abs/1808.07388}{arXiv:1808.07388}.
+
+\bibitem{saini2020}
+R. Saini and B. K. Behera, ``Experimental Realization of Quantum Darwinism State on Quantum Computers,'' (2020). \href{https://arxiv.org/abs/2012.07562}{arXiv:2012.07562}.
+
+\bibitem{jaderberg2021}
+B. Jaderberg, L. W. Anderson, W. Xie, S. Albanie, M. Kiffner, and D. Jaksch, ``Quantum Self-Supervised Learning,'' \emph{Quantum Sci. Technol.} 7, 035005 (2022). \href{https://arxiv.org/abs/2103.14653}{arXiv:2103.14653}.
+
+\bibitem{ciliberto2018}
+C. Ciliberto, M. Herbster, A. D. Ialongo, M. Pontil, A. Rocchetto, S. Severini, and L. Wossnig, ``Quantum machine learning: a classical perspective,'' \emph{Proc. R. Soc. A} 474, 20170551 (2018). \href{https://arxiv.org/abs/1707.08561}{arXiv:1707.08561}.
+
+\bibitem{cheng2016}
+H.-C. Cheng, M.-H. Hsieh, and P.-C. Yeh, ``The Learnability of Unknown Quantum Measurements,'' \emph{Quantum Information and Computation} 16, 615--656 (2016). \href{https://arxiv.org/abs/1501.00559}{arXiv:1501.00559}.
+
+\bibitem{sadoune2023}
+N. Sadoune, G. Giudici, K. Liu, and L. Pollet, ``Unsupervised Interpretable Learning of Phases From Many-Qubit Systems,'' \emph{Phys. Rev. Research} 5, 013082 (2023). \href{https://arxiv.org/abs/2208.08850}{arXiv:2208.08850}.
+
+\bibitem{banchi2023}
+L. Banchi, J. L. Pereira, S. T. Jose, and O. Simeone, ``Statistical Complexity of Quantum Learning,'' (2023; journal version 2025). \href{https://arxiv.org/abs/2309.11617}{arXiv:2309.11617}.
+
+\bibitem{chisholm2023}
+D. A. Chisholm, L. Innocenti, and G. M. Palma, ``The meaning of redundancy and consensus in quantum objectivity,'' \emph{Quantum} 7, 1074 (2023). \href{https://arxiv.org/abs/2211.09150}{arXiv:2211.09150}.
+
+\bibitem{mcclean2018}
+J. R. McClean, S. Boixo, V. N. Smelyanskiy, R. Babbush, and H. Neven, ``Barren plateaus in quantum neural network training landscapes,'' \emph{Nat. Commun.} 9, 4812 (2018). \href{https://arxiv.org/abs/1803.11173}{arXiv:1803.11173}.
+
+\bibitem{larocca2024}
+M. Larocca et al., ``A Review of Barren Plateaus in Variational Quantum Computing,'' (2024; revised 2025). \href{https://arxiv.org/abs/2405.00781}{arXiv:2405.00781}.
+
+\bibitem{konig2009}
+R. K\"onig, R. Renner, and C. Schaffner, ``The Operational Meaning of Min- and Max-Entropy,'' \emph{IEEE Trans. Inf. Theory} 55, 4337--4347 (2009). \href{https://arxiv.org/abs/0807.1338}{arXiv:0807.1338}.
+
+\bibitem{hu2012}
+B.-G. Hu and H.-J. Xing, ``Analytical Bounds between Entropy and Error Probability in Binary Classifications,'' (2012). \href{https://arxiv.org/abs/1205.6602}{arXiv:1205.6602}.
+
+\end{thebibliography}
