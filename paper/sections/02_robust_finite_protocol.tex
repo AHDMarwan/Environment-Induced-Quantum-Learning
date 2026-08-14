@@ -1,0 +1,193 @@
+\section{Robust pointer-information identifiability under approximate SBS}
+
+The central technical result of v2 is the robust theorem. It is stated relative to a nearby perfect SBS state because that supplies a well-defined reference pointer variable $X$.
+
+For an $L$-symbol alphabet define
+\begin{equation}
+\cL(t)=h_2(t)+t\log_2(L-1),
+\label{eq:cL}
+\end{equation}
+where $h_2$ is binary entropy. On $0\le t\le1-1/L$, $\cL$ is nondecreasing.
+
+\begin{theorem}[Robust pointer-information identifiability under learned local decoders]
+\label{thm:robust}
+Let $\sigma$ be a perfect SBS state with pointer variable $X$ and let $\rho$ satisfy
+\begin{equation}
+\frac12\|\rho-\sigma\|_1\le\eta.
+\label{eq:traceclose}
+\end{equation}
+Let $m\ge2$ and let an $L$-outcome measurement tuple $\mathbf M$ satisfy
+\begin{align}
+D_\rho(\mathbf M)&\le\eps,\label{eq:robdis}\\
+R_\rho(\mathbf M)&\ge H(X)-\kappa.\label{eq:robrich}
+\end{align}
+Define $\delta=\eps+\eta$, and assume $\eta,\delta\le1-1/L$. Then for every fragment $j$,
+\begin{equation}
+H_\sigma(X\mid Z_j)
+\le
+\kappa+\cL(\eta)+\cL(\delta).
+\label{eq:robustbound}
+\end{equation}
+Consequently, provided the output alphabet can support this limit, if $\eps,\eta,\kappa\to0$, then the residual uncertainty about the SBS pointer variable from every learned fragment output vanishes.
+\end{theorem}
+
+\begin{proof}
+Fix a fragment $j$ and select any $k\ne j$. Measurement is a quantum channel, so trace distance contracts. Therefore the classical distributions of $(Z_j,Z_k)$ obtained from $\rho$ and $\sigma$ have total variation distance at most $\eta$. In particular,
+\begin{equation}
+P_\sigma(Z_j\ne Z_k)\le\eps+\eta=\delta.
+\label{eq:sigmadis}
+\end{equation}
+
+Conditioned on $X=x$, the SBS product form gives independence of $Z_j$ and $Z_k$. Write
+\[
+p_x(z)=P_\sigma(Z_j=z\mid X=x),\qquad
+q_x(z)=P_\sigma(Z_k=z\mid X=x)
+\]
+and
+\[
+\delta_x=P_\sigma(Z_j\ne Z_k\mid X=x).
+\]
+Then
+\[
+1-\delta_x=\sum_zp_x(z)q_x(z)\le\max_zp_x(z).
+\]
+Define
+\[
+g_j(x)\in\arg\max_zp_x(z),\qquad
+e_x=P_\sigma(Z_j\ne g_j(X)\mid X=x).
+\]
+The preceding inequality implies $e_x\le\delta_x$. Averaging over $X$ gives
+\begin{equation}
+e:=P_\sigma(Z_j\ne g_j(X))\le\sum_xp_x\delta_x=P_\sigma(Z_j\ne Z_k)\le\delta.
+\label{eq:globalerror}
+\end{equation}
+
+Let $E=\mathbf 1\{Z_j\ne g_j(X)\}$. Conditional on $(X,E=0)$, $Z_j$ is deterministic; conditional on $(X,E=1)$ it has at most $L-1$ possibilities. Hence
+\begin{align}
+H_\sigma(Z_j\mid X)
+&\le H(E\mid X)+P(E=1)\log_2(L-1)\\
+&\le h_2(e)+e\log_2(L-1)\\
+&=\cL(e)\le\cL(\delta).
+\label{eq:fanoish}
+\end{align}
+This global error-indicator argument is the key repair relative to v1; it does not require every conditional disagreement $\delta_x$ to be individually small.
+
+Next, the marginal output distributions of $Z_j$ under $\rho$ and $\sigma$ have total variation distance at most $\eta$. The finite-alphabet entropy continuity bound gives
+\begin{equation}
+|H_\rho(Z_j)-H_\sigma(Z_j)|\le\cL(\eta)
+\label{eq:entropycont}
+\end{equation}
+under the stated range condition \cite{winter2016}. Since \cref{eq:robrich} uses the minimum fragment entropy,
+\[
+H_\sigma(Z_j)\ge H(X)-\kappa-\cL(\eta).
+\]
+Finally,
+\begin{align}
+H_\sigma(X\mid Z_j)
+&=H(X)-H_\sigma(Z_j)+H_\sigma(Z_j\mid X)\\
+&\le\kappa+\cL(\eta)+\cL(\delta),
+\end{align}
+which proves \cref{eq:robustbound}.
+\end{proof}
+
+\begin{corollary}[Binary output]
+For $L=2$,
+\begin{equation}
+H_\sigma(X\mid Z_j)\le\kappa+h_2(\eta)+h_2(\eps+\eta).
+\end{equation}
+\end{corollary}
+
+\begin{remark}[Alphabet non-vacuity]
+Because every learned output has at most $L$ symbols, $H_\rho(Z_j)\le\log_2L$. Therefore the richness hypothesis $R_\rho(\mathbf M)\ge H(X)-\kappa$ can hold only if
+\[
+\kappa\ge H(X)-\log_2L
+\]
+whenever $H(X)>\log_2L$. In particular, the formal limit $\kappa\to0$ requires $H(X)\le\log_2L$. This is a feasibility condition, not an additional proof assumption.
+\end{remark}
+
+\begin{corollary}[Operational Bayes recovery]
+\label{cor:bayes}
+Under the hypotheses of \cref{thm:robust}, define
+\[
+B=\kappa+\cL(\eta)+\cL(\eps+\eta).
+\]
+Let $P_{e,j}^*$ be the minimum probability of error for inferring $X$ from the learned classical output $Z_j$. Then
+\begin{equation}
+P_{e,j}^*\le 1-2^{-B}.
+\label{eq:bayesbound}
+\end{equation}
+Thus $B\to0$ implies an explicit vanishing-error recovery guarantee. The bound is a simple certificate rather than a claim of tight optimality.
+\end{corollary}
+
+\begin{proof}
+For a fixed observed value $z$, let $p_{\max}(z)=\max_xP(X=x\mid Z_j=z)$ and let $H_z=H(X\mid Z_j=z)$. Shannon entropy dominates min-entropy, so $H_z\ge-\log_2p_{\max}(z)$ and hence
+\[
+1-p_{\max}(z)\le1-2^{-H_z}.
+\]
+The function $u\mapsto1-2^{-u}$ is concave. Averaging over $Z_j$ and applying Jensen's inequality gives
+\[
+P_{e,j}^*=\mathbb E[1-p_{\max}(Z_j)]
+\le1-2^{-H(X\mid Z_j)}
+\le1-2^{-B}.
+\]
+\end{proof}
+
+\begin{remark}[Tightness of the Bayes certificate]
+The error certificate in \cref{eq:bayesbound} is intentionally general and can be loose. For small $B$, $1-2^{-B}=(\ln 2)B+O(B^2)$, so it has the required vanishing behavior, but sharper entropy--error relations are known in more specialized settings \cite{konig2009,hu2012}. The role of \cref{cor:bayes} is to convert the information-theoretic theorem into a transparent operational recovery statement, not to provide the tightest possible Bayes-risk converse.
+\end{remark}
+
+\begin{remark}[What the theorem does not say]
+The theorem does not prove that an arbitrary quantum environment is close to SBS, nor that maximizing \cref{eq:objective} always finds the global optimum efficiently. It says that if a measurement tuple has empirically relevant properties---low worst-pair disagreement and high minimum entropy---and the physical state is close to an SBS reference, then the learned outputs are necessarily informative about that reference pointer variable.
+\end{remark}
+
+\section{Finite-shot learning guarantee for a finite measurement class}
+
+A NISQ-compatible learning statement must account for finite measurement shots. The following proposition is intentionally conservative; it uses only Hoeffding concentration, a union bound, and finite-alphabet entropy continuity.
+
+Let $\mathcal C\subset\mathfrak M^{(L)}$ be a finite candidate class of size $Q$. For each $\mathbf M\in\mathcal C$, use $n$ fresh independent preparations and record the full outcome vector $(Z_1,\ldots,Z_m)$. Let $\widehat D(\mathbf M)$ be the empirical maximum pairwise disagreement and $\widehat R(\mathbf M)$ the empirical minimum marginal entropy.
+
+\begin{proposition}[Uniform finite-shot certificate]
+\label{prop:finite}
+Let $C_m=\binom{m}{2}$ and choose failure probability $\beta\in(0,1)$. Define
+\begin{align}
+a_n&=\sqrt{\frac{\ln(4QC_m/\beta)}{2n}},\\
+t_n&=\sqrt{\frac{\ln(4QmL/\beta)}{2n}},\\
+\tau_n&=\frac{L t_n}{2}.
+\end{align}
+Assume $\tau_n\le1-1/L$. Then with probability at least $1-\beta$, simultaneously for every $\mathbf M\in\mathcal C$,
+\begin{align}
+|\widehat D(\mathbf M)-D(\mathbf M)|&\le a_n,\label{eq:Duniform}\\
+|\widehat R(\mathbf M)-R(\mathbf M)|&\le \cL(\tau_n).\label{eq:Runiform}
+\end{align}
+
+Therefore, if an empirical EIQL solver selects
+\begin{equation}
+\widehat{\mathbf M}\in\arg\max_{\mathbf M\in\mathcal C}\widehat R(\mathbf M)
+\quad\text{subject to}\quad
+\widehat D(\mathbf M)\le\eps-a_n,
+\label{eq:empsolver}
+\end{equation}
+then $D(\widehat{\mathbf M})\le\eps$. Moreover, relative to the best candidate satisfying the stricter population margin $D(\mathbf M)\le\eps-2a_n$, the selected true richness is at most $2\cL(\tau_n)$ below optimal.
+\end{proposition}
+
+\begin{proof}[Proof sketch]
+For each candidate and each fragment pair, disagreement is a Bernoulli random variable. Hoeffding's inequality and a union bound over $QC_m$ pair-statistics yield \cref{eq:Duniform}. For every candidate, fragment, and output symbol, Hoeffding plus a union bound over $QmL$ probabilities yields coordinate error at most $t_n$, hence marginal total variation at most $\tau_n$. The finite-alphabet continuity bound then gives \cref{eq:Runiform}. The feasibility and near-optimality statements follow by applying these two uniform bounds to the empirical optimizer and to the population comparator.
+\end{proof}
+
+This result certifies a pre-specified finite candidate set evaluated with fresh data. It does not automatically certify adaptive candidate generation in which future measurement settings depend on earlier shot outcomes; that setting requires a sequential or other adaptivity-aware generalization analysis. More broadly, this is not a sample-complexity theorem for a continuous POVM manifold. For continuous classes, covering numbers, Rademacher-type complexity, or structure-specific geometry are natural next steps \cite{banchi2023}. It does, however, make a finite-grid or calibrated-measurement EIQL experiment statistically well defined.
+
+\section{Hardware-compatible finite-measurement protocol}
+
+A minimal EIQL experiment can be run without a deep variational circuit:
+
+\begin{enumerate}
+\item Prepare the same open-system process repeatedly and obtain $m$ environmental fragments from each run.
+\item Choose a hardware-constrained candidate local measurement tuple $\mathbf M$.
+\item Measure all fragments on fresh runs and estimate $\widehat D(\mathbf M)$ and $\widehat R(\mathbf M)$.
+\item Search the candidate class for maximum richness under the disagreement constraint, optionally using the lexicographic minimum-disagreement tie-break.
+\item Validate the selected measurement on fresh shots and compare with a permutation null that independently shuffles fragment outcomes across physical runs.
+\end{enumerate}
+
+For single-qubit fragments, a candidate measurement can be a Bloch-axis projective measurement, implemented by one local pre-rotation and a computational-basis measurement. The quantum device supplies the state and measurement statistics; the outer search can be a pre-specified classical grid, random finite candidate set, or finite calibrated basis set while retaining \cref{prop:finite}. Adaptive procedures such as Bayesian optimization may still be useful experimentally, but require a separate sequential/generalization analysis.
+
+Current quantum hardware has already been used to witness Quantum Darwinism and objectivity in collision models \cite{chisholm2022,saini2020}, and superconducting-circuit experiments have observed branching structures associated with Quantum Darwinism while proposing inexpensive designed local witnesses \cite{zhu2025}. EIQL's proposed distinction is not the use of quantum processors for Quantum Darwinism; it is the learning of an initially unknown local decoder from redundancy. Version 3 does not include a new hardware run; hardware validation is an optional follow-up rather than a logical premise of the framework.
