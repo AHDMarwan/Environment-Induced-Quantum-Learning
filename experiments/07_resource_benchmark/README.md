@@ -63,17 +63,15 @@ At 256 shots/setting over 60 worlds:
 - learned same-event worst disagreement: approximately **0.0010**;
 - balanced independent-fragment population disagreement: **0.5**.
 
-## Files
+## Committed files
 
-- `eiql_vs_tomography_resource_benchmark.py` — standalone benchmark script
-- `eiql_vs_tomography_summary.csv` — equal-copy summary
-- `eiql_vs_tomography_runs.csv` — equal-copy individual worlds
-- `eiql_vs_tomography_noise_summary.csv` — readout-noise summary
-- `eiql_vs_tomography_noise_runs.csv` — readout-noise individual worlds
+- `eiql_vs_tomography_resource_benchmark.py` — standalone benchmark script; rerunning it regenerates raw run tables and both figures
+- `eiql_vs_tomography_summary.csv` — equal-copy canonical summary
+- `eiql_vs_tomography_noise_summary.csv` — readout-noise canonical summary
 - `eiql_vs_tomography_null.csv` — null-control runs
 - `eiql_vs_tomography_scaling.csv` — measurement-setting scaling table
-- `eiql_vs_tomography_equal_budget.png` — equal-copy decoder comparison
-- `eiql_vs_tomography_settings_scaling.png` — settings-scaling figure
+
+The larger raw run tables and PNG figures are reproducible outputs of the script and are intentionally not required as canonical repository artifacts.
 
 ## Interpretation limits
 
