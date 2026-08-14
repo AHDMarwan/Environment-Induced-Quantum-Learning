@@ -1,52 +1,70 @@
 # Environment-Induced Quantum Learning (EIQL)
 
-EIQL is a **quantum measurement-learning framework** for self-supervised discovery of a local decoder from redundant quantum environmental records.
+EIQL is a **quantum measurement-learning framework** for self-supervised discovery of local decoders from redundant quantum environmental records.
 
-The central operational question is:
+The central question is:
 
-> Given repeated access to quantum environment fragments, but no pointer labels and no prescribed readout basis, can a learner discover local measurements whose outputs are simultaneously informative and mutually consistent?
+> Given repeated access to quantum environment fragments, with no pointer labels and no prescribed readout basis, can a learner discover physically implementable local measurements whose outputs are simultaneously informative and mutually consistent?
 
-The current EIQL objective uses two quantities for fragment outputs \(Z_1,\ldots,Z_m\):
+For fragment outputs \(Z_1,\ldots,Z_m\), the current objective uses
 
-- **worst-pair disagreement**: \(D=\max_{i<j}P(Z_i\neq Z_j)\)
-- **redundant richness**: \(R=\min_j H(Z_j)\)
+- worst-pair disagreement: \(D=\max_{i<j}P(Z_i\neq Z_j)\);
+- redundant richness: \(R=\min_j H(Z_j)\).
 
-The hardware-constrained learning problem is to maximize \(R\) subject to \(D\le\varepsilon\), with fragmentwise output relabelings treated as free classical post-processing.
+The learner maximizes \(R\) subject to \(D\le\varepsilon\), with fragmentwise output relabelings treated as free classical post-processing.
 
-## Status
+## Current status: Version 3 frozen scope
 
-Active research manuscript; **not peer reviewed and no quantum advantage is claimed**.
+The first-paper scope is now **theory + simulation**. A real-hardware experiment is useful future validation but is not required for the claims in Version 3.
 
-Current theory includes:
+Current theory includes an exact SBS pointer-information structural theorem, a robust theorem near SBS, a simple Bayes-recovery certificate, a finite-shot guarantee for a pre-specified finite decoder class, and an analytic independent-product null baseline.
 
-- an exact SBS structural lemma for pointer-information recovery;
-- a robust identifiability theorem near an SBS reference state;
-- a simple Bayes-recovery corollary;
-- a finite-shot guarantee for a pre-specified finite measurement class;
-- an analytic independent-product null baseline.
+Current numerical evidence includes the theory-matched five-qubit collision benchmark, permutation and finite-shot diagnostics, NISQ-style noise stress tests, an external-architecture benchmark based on Chen et al. (2019), and an environment-only resource benchmark against a system-assisted correlation estimator and full Pauli tomography in measurement-setting count.
 
-Current experiments include toy broadcast models, explicit collision dynamics, generalized unknown Hamiltonians, a revised 5-qubit EIQL objective benchmark, NISQ-style noise stress tests, and a benchmark based on the published Chen et al. six-photon Quantum-Darwinism architecture with hidden local decoder bases.
+No quantum advantage, universal tomography superiority, unique POVM recovery, or hardware demonstration is claimed.
 
-See **[TRACK.md](TRACK.md)** for the complete research log, current claims, numerical milestones, limitations, and next experiments.
+## Current manuscript
+
+- [Version 3 LaTeX](paper/EIQL_v3.tex)
+- [Manuscript notes](paper/README.md)
+- [Research track](TRACK.md)
+- [Canonical numerical results](RESULTS.md)
+
+Version 3 title:
+
+**Environment-Induced Quantum Learning (EIQL): Self-Supervised Measurement Discovery from Redundant Quantum Records**
 
 ## Repository layout
 
 ```text
-paper/                         current manuscript and archived theory source
+paper/                         Version 3 manuscript + generated-figure references
 experiments/
-  01_blind_pointer/            first redundancy-only decoder discovery
+  01_blind_pointer/            historical blind-pointer exploration
   02_collision_model/          explicit S-E collision dynamics
-  03_general_hamiltonian/      unknown/generalized Hamiltonian stress test
-  04_revised_objective/        consensus-richness objective matching theory
-  05_noisy_nisq/               depolarizing + readout-noise stress test
+  03_general_hamiltonian/      generalized Hamiltonian stress test
+  04_revised_objective/        primary theory-matched EIQL objective
+  05_noisy_nisq/               depolarization + readout-noise stress test
   06_chen2019/                 published photonic-QD architecture benchmark
-classical_sanity/
-  iris/                        classical multiview sanity check
-  synthetic_medical/           multimodal synthetic-data robustness check
-docs/                          literature positioning and notes
+  07_resource_benchmark/       EIQL vs tomography/system-assisted resources
+classical_sanity/              auxiliary classical multiview sanity checks
+docs/                          literature-positioning notes
 ```
 
-Large raw synthetic datasets are intentionally not versioned; they are reproducible from the included generation scripts. Summary CSVs are versioned.
+## Strongest numerical results
+
+On the Chen et al. mixed-quality record architecture, the learned worst-pair disagreement was approximately **0.27689**, close to the physical oracle floor **0.27487**. EIQL selected the three ideal records in **12/12** population hidden-basis worlds and **10/10** finite-shot worlds.
+
+In the resource benchmark at 6912 copies per method, environment-only EIQL recovered decoder axes with mean errors **1.63 deg** (strong records) and **2.08 deg** (mixed records), compared with **2.32 deg** and **2.65 deg** for the stronger system-assisted correlation baseline in the same simulated task. For five environment fragments, the pair-moment design uses 27 distinct Pauli settings, versus 9 for the system-assisted task-specific baseline and 729 for full six-qubit Pauli tomography. This is a structured-task comparison, not a universal sample-complexity advantage claim.
+
+## Scope of the novelty claim
+
+EIQL does not claim to introduce Quantum Darwinism, redundant environmental records, pointer observables, observer consensus, local witnesses of Darwinism, classical multiview agreement, or quantum self-supervision.
+
+The proposed contribution is narrower:
+
+> **Redundancy across independently accessible quantum environmental fragments is used as the self-supervised training signal for discovering an initially unknown local measurement/decoder.**
+
+The representation is physically instantiated by a quantum measurement rather than supplied as an already classical feature vector.
 
 ## Quick start
 
@@ -58,27 +76,10 @@ pip install -r requirements.txt
 python experiments/04_revised_objective/eiql_v21_simulation.py
 python experiments/05_noisy_nisq/eiql_noisy_nisq_simulation.py
 python experiments/06_chen2019/eiql_chen2019_benchmark.py
+python experiments/07_resource_benchmark/eiql_vs_tomography_resource_benchmark.py
 ```
 
-The scripts use fixed seeds for reproducibility. They are research prototypes rather than a packaged library.
-
-## Current strongest external-architecture result
-
-Using the interaction structure of Chen et al. (2019), the benchmark independently hides the local basis of every environment record. EIQL is given neither the system variable nor the pointer labels.
-
-In the ideal five-record setting, multi-start EIQL obtained a mean worst-pair disagreement of approximately **0.00193** across 12 independently hidden-basis worlds. In the heterogeneous setting, the learned disagreement (**0.27689**) was close to the physical oracle floor (**0.27487**). When asked to select the best three environment records, EIQL selected the three perfect records in **12/12** population runs and **10/10** finite-shot hidden-basis worlds.
-
-These are simulations based on a published architecture, not a rerun of the original laboratory data.
-
-## Scope of the novelty claim
-
-EIQL does **not** claim to introduce Quantum Darwinism, redundant environmental records, pointer observables, observer consensus, local witnesses of Darwinism, classical multiview agreement, or generic quantum self-supervised learning.
-
-The proposed contribution is narrower:
-
-> **Redundancy across independently accessible quantum environmental fragments is used as the self-supervised training signal for discovering an initially unknown local measurement/decoder.**
-
-The representation is physically instantiated by a quantum measurement rather than supplied as pre-existing classical features.
+The scripts are research prototypes with fixed seeds where appropriate, not a packaged library.
 
 ## License
 
