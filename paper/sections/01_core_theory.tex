@@ -1,0 +1,167 @@
+\section{Research question and scope}
+
+Quantum Darwinism treats the environment as a communication channel that proliferates records of selected system observables. In the environment-as-witness formulation, redundant imprints are associated with preferred pointer observables selected by decoherence and einselection \cite{ollivier2004,ollivier2005,zurek2003}. Spectrum broadcast structure (SBS) gives a particularly sharp state-level form of objective records: a classical system variable is correlated with locally distinguishable states in multiple subenvironments \cite{horodecki2015,le2019}.
+
+EIQL starts one step later. It assumes that an observer has repeated physical access to environmental fragments, but is \emph{not} told which fragment measurement reveals the objective record. The central learning question is:
+
+\begin{quote}
+Given repeated preparations of quantum environmental fragments and a physically implementable measurement class, can an observer learn a local measurement/decoder whose outputs are both informative and redundantly consistent across fragments, without labels and without prior knowledge of the pointer observable?
+\end{quote}
+
+This question is deliberately narrower than ``discovering objectivity'' in general. Redundancy, pointer selection, uniqueness of redundant imprints, and observer consensus already have substantial prior art \cite{ollivier2004,fu2021,touil2025}. EIQL instead treats the \emph{decoder itself} as the learned object.
+
+The learning principle also has classical relatives: multiview agreement, common-information extraction, and self-supervision all predate EIQL, and quantum self-supervised learning exists as a broader research direction \cite{gacs1973,jaderberg2021}. The intended claim is therefore not a new universal learning paradigm. The operational quantum difference is that the views are quantum states and the learner must choose the physical measurement that creates the classical representation. Incompatible candidate measurements cannot all be read simultaneously from the same copy. This is why the present paper is framed as a \emph{quantum measurement-learning framework/problem formulation}, not merely as a quantum implementation of a classical agreement loss and not as a claim of generic quantum learning advantage \cite{ciliberto2018}.
+
+The framework is also distinct from the usual variational-QML pattern
+\[
+\rho \longrightarrow U(\theta) \longrightarrow \text{measurement} \longrightarrow \text{loss} \longrightarrow \text{optimize }\theta.
+\]
+A basic EIQL implementation can search a shallow local measurement family directly, so deep parameterized circuits and their gradient landscapes are not necessary. This does not constitute a theorem that EIQL can never exhibit optimization pathologies; it only means that barren plateaus are not intrinsic to the minimal formulation. Barren plateaus remain an established concern for broad families of variational quantum circuits \cite{mcclean2018,larocca2024}.
+
+\section{Physical setting}
+
+Let $S$ be a finite-dimensional system and let the environment be partitioned into $m\ge 2$ fragments,
+\[
+E = E_1\otimes E_2\otimes\cdots\otimes E_m.
+\]
+The learner receives repeated preparations of a state $\rho_{SE_1\cdots E_m}$ but need not access $S$ directly. On each fragment $E_j$, it may apply a POVM
+\[
+M_j=\{M_{j,z}\}_{z\in\Zcal},\qquad M_{j,z}\succeq 0,\qquad \sum_{z\in\Zcal}M_{j,z}=I_{E_j},
+\]
+where $|\Zcal|=L\ge 2$. The resulting classical output is $Z_j\in\Zcal$.
+
+A hardware restriction is represented by a set $\mathfrak M_j^{(L)}$ of allowed $L$-outcome POVMs. A local \emph{decoder} is a pair $\mathcal D_j=(M_j,\pi_j)$, where $M_j\in\mathfrak M_j^{(L)}$ and $\pi_j$ is an arbitrary classical permutation of the output alphabet $\Zcal$. Output relabelings are free: the operational variable is
+\[
+Z_j=\pi_j(Y_j),
+\]
+where $Y_j$ is the raw detector label. The joint admissible decoder class contains all such relabelings of
+\[
+\mathfrak M^{(L)}=\mathfrak M_1^{(L)}\times\cdots\times\mathfrak M_m^{(L)}.
+\]
+This convention prevents a purely notational mismatch---for example, one fragment outputting $X$ and another outputting $1-X$---from being counted as physical disagreement. The hardware class can encode single-qubit projective measurements, a finite set of calibrated bases, bounded-depth local pre-rotations followed by computational-basis measurement, or a restricted family of local instruments.
+
+\begin{definition}[Operational decoder equivalence]
+Fix a relevant record family $\mathcal R_j=\{\sigma_x^{E_j}:x\in\Xcal\}$. Two local decoders $\mathcal D_j$ and $\mathcal D'_j$ are operationally equivalent on $\mathcal R_j$, written $\mathcal D_j\sim_{\mathcal R_j}\mathcal D'_j$, if they induce the same conditional output statistics on every record state:
+\[
+P_{\mathcal D_j}(Z=z\mid\sigma_x^{E_j})=P_{\mathcal D'_j}(Z=z\mid\sigma_x^{E_j})
+\qquad\forall x,z.
+\]
+EIQL aims to identify pointer information and decoder behavior on the physically occupied record states. It does not, without additional assumptions, identify a unique POVM operator on the full Hilbert space.
+\end{definition}
+
+\subsection{Spectrum broadcast structure}
+
+The reference ideal is a perfect SBS state
+\begin{equation}
+\sigma_{SE_1\cdots E_m}
+=\sum_{x\in\Xcal}p_x\,|x\rangle\!\langle x|_S\otimes
+\sigma_x^{E_1}\otimes\cdots\otimes\sigma_x^{E_m},
+\label{eq:sbs}
+\end{equation}
+with $p_x>0$ on the support and local distinguishability
+\begin{equation}
+\sigma_x^{E_j}\sigma_{x'}^{E_j}=0\qquad (x\ne x')
+\label{eq:orth}
+\end{equation}
+for every fragment $j$. The classical random variable $X$ with $P(X=x)=p_x$ is the broadcast pointer variable. This is the classical information made objective by the SBS structure; the records that carry it are quantum states \cite{horodecki2015,korbicz2021}.
+
+For any tuple of local measurements, the product form of \cref{eq:sbs} gives conditional independence
+\begin{equation}
+P_\sigma(z_1,\ldots,z_m\mid x)=\prod_{j=1}^m P_\sigma(z_j\mid x).
+\label{eq:condind}
+\end{equation}
+This conditional-independence property is the mathematical bridge to common-randomness extraction.
+
+\section{The EIQL objective}
+
+The first draft used average pairwise disagreement and the entropy of a distinguished fragment. That objective can be gamed when $m$ is large: one fragment may carry a rich variable while most other fragments agree on something trivial. Version 2.1 retains the symmetric worst-case quantities introduced in Version 2.
+
+For an admissible measurement tuple $\mathbf M=(M_1,\ldots,M_m)$ define the \emph{worst-pair disagreement}
+\begin{equation}
+D_\rho(\mathbf M)=\max_{1\le i<j\le m}P_\rho(Z_i\ne Z_j),
+\label{eq:disagree}
+\end{equation}
+and the \emph{redundant richness}
+\begin{equation}
+R_\rho(\mathbf M)=\min_{1\le j\le m}H_\rho(Z_j).
+\label{eq:richness}
+\end{equation}
+The minimum in \cref{eq:richness} prevents a single high-entropy fragment from defining the representation.
+
+\begin{definition}[Hardware-constrained EIQL value]
+For tolerance $\eps\in[0,1]$, alphabet size $L$, and hardware class $\mathfrak M^{(L)}$, define
+\begin{equation}
+\mathcal O_{\eps,L}^{\mathfrak M}(\rho)
+=
+\sup_{\mathbf M\in\mathfrak M^{(L)}}R_\rho(\mathbf M)
+\quad\text{subject to}\quad
+D_\rho(\mathbf M)\le \eps.
+\label{eq:objective}
+\end{equation}
+If the feasible set is empty, $\mathcal O_{\eps,L}^{\mathfrak M}(\rho)$ is undefined (or may be assigned $-\infty$ by convention).
+\end{definition}
+
+The quantity $\eps\mapsto\mathcal O_{\eps,L}^{\mathfrak M}(\rho)$ is the \emph{agreement-richness frontier}. It describes how much common information is operationally extractable at a prescribed worst-fragment reliability.
+
+For selecting an operational decoder representative, \cref{eq:objective} may be lexicographically refined: first maximize $R_\rho$, then among solutions within a small tolerance $\tau$ of the optimum, minimize $D_\rho$. This tie-break does not change the frontier itself; it selects a stable representative when richness is flat over many measurements.
+
+\section{Exact pointer-information identifiability under SBS}
+
+The exact result is best interpreted as a foundational lemma, not the primary novelty claim. Related uniqueness and redundant-imprint results are already known in Quantum Darwinism \cite{ollivier2004,fu2021}.
+
+\begin{theorem}[Exact SBS pointer-information structure]
+\label{thm:exact}
+Let $\sigma$ be a perfect SBS state of the form \cref{eq:sbs}, and let local measurements produce $Z_1,\ldots,Z_m\in\Zcal$. If
+\begin{equation}
+P_\sigma(Z_1=Z_2=\cdots=Z_m)=1,
+\label{eq:exactcons}
+\end{equation}
+then there exists a deterministic map $g:\Xcal\to\Zcal$ such that
+\begin{equation}
+Z_j=g(X)\qquad\text{almost surely for every }j.
+\label{eq:gX}
+\end{equation}
+Consequently,
+\begin{equation}
+H(Z_j)=H(g(X))\le \max_{f:\Xcal\to\Zcal}H(f(X))\le \min\{H(X),\log_2L\}.
+\label{eq:alphabetupper}
+\end{equation}
+
+If, in addition, each hardware class $\mathfrak M_j^{(L)}$ contains an SBS-support-resolving measurement followed by arbitrary classical post-processing into $\Zcal$, then
+\begin{equation}
+\mathcal O_{0,L}^{\mathfrak M}(\sigma)
+=
+\max_{f:\Xcal\to\Zcal}H(f(X)).
+\label{eq:exactopt}
+\end{equation}
+In particular, if $L\ge |\supp X|$, then
+\begin{equation}
+\mathcal O_{0,L}^{\mathfrak M}(\sigma)=H(X),
+\end{equation}
+and every exact-consensus maximizer with entropy $H(X)$ recovers $X$ up to a one-to-one relabeling on its support.
+\end{theorem}
+
+\begin{proof}
+Because the average of the conditional probabilities of the event in \cref{eq:exactcons} equals one, that event has conditional probability one for every $x$ with $p_x>0$. Consider fragments $1$ and $2$. Write
+\[
+p_x(z)=P_\sigma(Z_1=z\mid X=x),\qquad q_x(z)=P_\sigma(Z_2=z\mid X=x).
+\]
+By \cref{eq:condind},
+\[
+1=P_\sigma(Z_1=Z_2\mid X=x)=\sum_z p_x(z)q_x(z)
+\le \max_z p_x(z)\sum_zq_x(z)\le1.
+\]
+Therefore $\max_zp_x(z)=1$, so $Z_1$ is deterministic given $X=x$. The same argument applies to $Z_2$, and exact equality forces their deterministic values to coincide. Repeating with the remaining fragments yields a single function $g$ such that \cref{eq:gX} holds.
+
+The entropy bounds follow because deterministic processing cannot increase Shannon entropy and because an $L$-symbol variable has entropy at most $\log_2L$.
+
+Under the stated hardware expressivity condition, each fragment can first distinguish the orthogonal supports in \cref{eq:orth}, recover $x$, and then output any chosen $f(x)\in\Zcal$. Thus every deterministic coarse-graining $f$ is achievable, proving \cref{eq:exactopt}. If $L\ge|\supp X|$, choose $f$ injective to attain $H(X)$. Conversely, if $H(f(X))=H(X)$, then $H(X\mid f(X))=0$, so $f$ is injective on the support.
+\end{proof}
+
+\begin{remark}[Why the alphabet qualification matters]
+If $L<|\supp X|$, an $L$-outcome decoder cannot label all pointer values injectively. The exact EIQL optimum is then the maximum-entropy deterministic quantization of $X$, not necessarily $H(X)$. If the allowed hardware class cannot resolve the SBS supports, even that optimum may be unattainable.
+\end{remark}
+
+\begin{remark}[Information identifiability is not POVM uniqueness]
+The theorem identifies the common classical pointer information encoded in the learned outputs. It does not imply that the physical POVM operator is unique. Distinct POVMs can induce identical statistics on the SBS record supports while differing elsewhere in Hilbert space. The natural learned object is therefore the operational equivalence class $[\mathcal D_j]_{\mathcal R_j}$, together with the induced common variable, rather than a unique operator matrix.
+\end{remark}
