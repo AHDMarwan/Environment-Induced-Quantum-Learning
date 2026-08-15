@@ -7,14 +7,10 @@ conditionally independent qubit records with random local orientations and the
 same Bloch contrast c. Consecutive physical events are paired exactly as in the
 finite-shot estimator in the manuscript.
 
-Outputs:
-  outputs/runs.csv
-  outputs/summary.csv
-  outputs/finite_shot_theorem2.png
-
-The theorem bound is intentionally plotted even when conservative. Regions in
-which e_N >= lambda are marked as non-vacuous = False rather than clipped into
-a misleading numerical guarantee.
+Besides the conservative explicit theorem bound, this benchmark estimates the
+empirical scaling exponent and the contrast-rescaled quantity c^2 sqrt(N) err.
+For a signal singular value proportional to c^2, N^{-1/2} estimation predicts an
+approximately constant rescaled error.
 """
 
 from pathlib import Path
@@ -41,7 +37,6 @@ def random_unit(rng):
 
 
 def shadow_coefficients(contrast, direction, hidden_x, rng):
-    """Return normalized Pauli-basis coefficients of qubit shadow snapshots."""
     n = len(hidden_x)
     axes = rng.integers(0, 3, size=n)
     branch_sign = 2 * hidden_x - 1
@@ -82,20 +77,28 @@ def theorem_quantities(contrast, n_pairs):
     e_n = (2.0 * B_SHADOW**2 / math.sqrt(n_pairs)) * (
         1.0 + math.sqrt(2.0 * math.log(1.0 / BETA))
     )
-    if e_n < lam:
-        bound = e_n / (lam - e_n)
-        nonvacuous = True
-    else:
-        bound = math.nan
-        nonvacuous = False
-    return lam, e_n, bound, nonvacuous
+    existence_condition = bool(e_n < lam)
+    bound = e_n / (lam - e_n) if existence_condition else math.nan
+    informative_bound = bool(existence_condition and bound < 1.0)
+    return lam, e_n, bound, existence_condition, informative_bound
+
+
+def linear_fit_loglog(x, y):
+    lx = np.log(np.asarray(x, dtype=float))
+    ly = np.log(np.asarray(y, dtype=float))
+    slope, intercept = np.polyfit(lx, ly, 1)
+    pred = slope * lx + intercept
+    ss_res = float(np.sum((ly - pred) ** 2))
+    ss_tot = float(np.sum((ly - ly.mean()) ** 2))
+    r2 = 1.0 - ss_res / ss_tot if ss_tot > 0 else 1.0
+    return float(slope), float(intercept), r2
 
 
 def main():
     rows = []
     for contrast in CONTRASTS:
         for n_pairs in N_PAIRS_GRID:
-            lam, e_n, bound, nonvacuous = theorem_quantities(contrast, n_pairs)
+            lam, e_n, bound, existence_condition, informative_bound = theorem_quantities(contrast, n_pairs)
             for world in range(WORLDS):
                 seed = SEED + int(1000 * contrast) * 10_000_000 + n_pairs + world
                 rng = np.random.default_rng(seed)
@@ -106,11 +109,13 @@ def main():
                     "physical_events": 2 * n_pairs,
                     "world": world,
                     "sin_angle_error": sin_error,
+                    "rescaled_error_c2_sqrtN": contrast**2 * math.sqrt(n_pairs) * sin_error,
                     "leading_singular_value_hat": leading_sv,
                     "lambda_signal": lam,
                     "e_N_beta": e_n,
                     "theorem_bound": bound,
-                    "bound_nonvacuous": nonvacuous,
+                    "theorem_existence_condition_e_lt_lambda": existence_condition,
+                    "theorem_bound_informative_lt_one": informative_bound,
                     "beta": BETA,
                 })
 
@@ -118,39 +123,71 @@ def main():
     summary = runs.groupby(["contrast_c", "n_pairs", "physical_events"], as_index=False).agg(
         median_sin_error=("sin_angle_error", "median"),
         q90_sin_error=("sin_angle_error", lambda x: float(np.quantile(x, 0.90))),
+        median_rescaled_error=("rescaled_error_c2_sqrtN", "median"),
+        q90_rescaled_error=("rescaled_error_c2_sqrtN", lambda x: float(np.quantile(x, 0.90))),
         mean_sin_error=("sin_angle_error", "mean"),
         sd_sin_error=("sin_angle_error", "std"),
         mean_leading_sv=("leading_singular_value_hat", "mean"),
         lambda_signal=("lambda_signal", "first"),
         e_N_beta=("e_N_beta", "first"),
         theorem_bound=("theorem_bound", "first"),
-        bound_nonvacuous=("bound_nonvacuous", "first"),
+        theorem_existence_condition_e_lt_lambda=("theorem_existence_condition_e_lt_lambda", "first"),
+        theorem_bound_informative_lt_one=("theorem_bound_informative_lt_one", "first"),
     )
+
+    fit_rows = []
+    for contrast in CONTRASTS:
+        sub = summary[summary.contrast_c == contrast].sort_values("n_pairs")
+        slope, intercept, r2 = linear_fit_loglog(sub.n_pairs, sub.median_sin_error)
+        fit_rows.append({
+            "contrast_c": contrast,
+            "loglog_slope_vs_N_pairs": slope,
+            "expected_slope": -0.5,
+            "loglog_intercept": intercept,
+            "r_squared": r2,
+            "mean_median_rescaled_error_c2_sqrtN": float(sub.median_rescaled_error.mean()),
+            "sd_median_rescaled_error_c2_sqrtN": float(sub.median_rescaled_error.std()),
+        })
+    fits = pd.DataFrame(fit_rows)
 
     runs.to_csv(OUT / "runs.csv", index=False)
     summary.to_csv(OUT / "summary.csv", index=False)
+    fits.to_csv(OUT / "scaling_fits.csv", index=False)
 
-    fig, ax = plt.subplots(figsize=(7.4, 4.8))
+    fig, axes = plt.subplots(1, 2, figsize=(11.5, 4.5))
+    ax = axes[0]
     for contrast in CONTRASTS:
         sub = summary[summary.contrast_c == contrast].sort_values("physical_events")
-        ax.plot(sub.physical_events, sub.median_sin_error, marker="o", label=f"c={contrast:.2f}: median")
-        ax.plot(sub.physical_events, sub.q90_sin_error, marker=".", linestyle="--", label=f"c={contrast:.2f}: 90%")
-        valid = sub[sub.bound_nonvacuous]
-        if len(valid):
-            ax.plot(valid.physical_events, np.minimum(valid.theorem_bound, 1.5), linestyle=":", marker="x",
-                    label=f"c={contrast:.2f}: theorem bound")
+        ax.plot(sub.physical_events, sub.median_sin_error, marker="o", label=f"c={contrast:.2f}")
+        ax.plot(sub.physical_events, sub.q90_sin_error, linestyle="--", alpha=0.65)
+    ax.set_xscale("log")
+    ax.set_yscale("log")
+    ax.set_xlabel("Physical events n = 2N")
+    ax.set_ylabel("HS sin-angle error")
+    ax.set_title("Finite-shot decoder recovery")
+    ax.grid(alpha=0.25)
+    ax.legend(fontsize=8)
+
+    ax = axes[1]
+    for contrast in CONTRASTS:
+        sub = summary[summary.contrast_c == contrast].sort_values("physical_events")
+        ax.plot(sub.physical_events, sub.median_rescaled_error, marker="o", label=f"c={contrast:.2f}")
+    pooled = float(summary.median_rescaled_error.mean())
+    ax.axhline(pooled, linestyle=":", label=f"pooled mean {pooled:.2f}")
     ax.set_xscale("log")
     ax.set_xlabel("Physical events n = 2N")
-    ax.set_ylabel("Hilbert-Schmidt sin-angle error")
-    ax.set_ylim(0, 1.05)
-    ax.set_title("Finite-shot two-fragment decoder recovery")
+    ax.set_ylabel(r"$c^2\sqrt{N}\,\mathrm{median}(\sin\theta)$")
+    ax.set_title("Contrast-rescaled data collapse")
     ax.grid(alpha=0.25)
-    ax.legend(fontsize=8, ncol=2)
+    ax.legend(fontsize=8)
+
     fig.tight_layout()
     fig.savefig(OUT / "finite_shot_theorem2.png", dpi=220)
     plt.close(fig)
 
     print(summary.to_string(index=False))
+    print("\nScaling fits")
+    print(fits.to_string(index=False))
 
 
 if __name__ == "__main__":

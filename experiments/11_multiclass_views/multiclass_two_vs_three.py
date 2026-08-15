@@ -5,8 +5,13 @@ The two-view distribution is the exact three-class commuting counterexample from
 Appendix B of the manuscript. It admits two distinct latent decompositions with
 different Bayes/MAP decoders on view A. A generic third stochastic view C is
 then appended to the first decomposition. From finite samples of (A,B,C), a
-spectral three-view method reconstructs A and the latent weights up to
-permutation, and therefore recovers the Bayes decoder.
+spectral three-view method reconstructs the latent factors up to a common
+permutation.
+
+Important methodological point: the recovery routine never uses the true latent
+matrix A. Oracle permutation matching is isolated in align_for_evaluation() and
+is used only to compute errors/success rates, exactly matching identifiability
+up to a common latent-label permutation.
 """
 
 from pathlib import Path
@@ -89,6 +94,7 @@ def empirical_moments(a, b, c):
 
 
 def recover_three_view(pab, slices):
+    """Recover unordered latent factors from observables only."""
     if np.linalg.cond(pab) > 1e7:
         raise np.linalg.LinAlgError("ill-conditioned P_AB")
     weighted = np.tensordot(W, slices, axes=(0, 0))
@@ -96,29 +102,33 @@ def recover_three_view(pab, slices):
     eigvals, eigvecs = np.linalg.eig(obs)
     if np.max(np.abs(np.imag(eigvals))) > 1e-5:
         raise np.linalg.LinAlgError("unstable complex spectrum")
-    rec_a = np.real(eigvecs)
 
+    rec_a = np.real(eigvecs)
     for k in range(3):
         if rec_a[:, k].sum() < 0:
             rec_a[:, k] *= -1
         rec_a[:, k] = np.clip(rec_a[:, k], 1e-8, None)
         rec_a[:, k] /= rec_a[:, k].sum()
 
-    cost = np.zeros((3, 3))
-    for i in range(3):
-        for j in range(3):
-            cost[i, j] = np.linalg.norm(rec_a[:, i] - A[:, j])
-    row, col = linear_sum_assignment(cost)
-    order = np.empty(3, dtype=int)
-    for r, cidx in zip(row, col):
-        order[cidx] = r
-    rec_a = rec_a[:, order]
-
     factor = np.linalg.solve(rec_a, pab)
     rec_p = factor.sum(axis=1)
     rec_p = np.clip(rec_p, 1e-10, None)
     rec_p /= rec_p.sum()
     return rec_p, rec_a
+
+
+def align_for_evaluation(rec_p, rec_a):
+    """Oracle label matching used only after recovery for benchmark scoring."""
+    cost = np.zeros((3, 3))
+    for recovered in range(3):
+        for truth in range(3):
+            cost[recovered, truth] = np.linalg.norm(rec_a[:, recovered] - A[:, truth])
+    row, col = linear_sum_assignment(cost)
+
+    order = np.empty(3, dtype=int)
+    for recovered, truth in zip(row, col):
+        order[truth] = recovered
+    return rec_p[order], rec_a[:, order]
 
 
 def main():
@@ -134,6 +144,7 @@ def main():
         "decoder_outcomes_that_conflict": int(np.sum(true_decoder != alt_decoder)),
         "three_view_C_condition_number": float(np.linalg.cond(C)),
         "P_AB_condition_number": float(np.linalg.cond(P)),
+        "oracle_alignment_used_only_for_evaluation": True,
     }])
     exact.to_csv(OUT / "exact_ambiguity.csv", index=False)
 
@@ -144,7 +155,8 @@ def main():
             aa, bb, cc = sample_three_view(shots, rng)
             pab, slices = empirical_moments(aa, bb, cc)
             try:
-                p_hat, a_hat = recover_three_view(pab, slices)
+                p_raw, a_raw = recover_three_view(pab, slices)
+                p_hat, a_hat = align_for_evaluation(p_raw, a_raw)
                 decoder_hat = map_decoder(p_hat, a_hat)
                 success = bool(np.array_equal(decoder_hat, true_decoder))
                 a_error = float(np.linalg.norm(a_hat - A))
@@ -160,17 +172,17 @@ def main():
                 "world": world,
                 "decoder_success": success,
                 "spectral_failure": failed,
-                "A_frobenius_error": a_error,
-                "p_l1_error": p_error,
+                "A_frobenius_error_after_label_matching": a_error,
+                "p_l1_error_after_label_matching": p_error,
             })
 
     runs = pd.DataFrame(rows)
     summary = runs.groupby("shots", as_index=False).agg(
         decoder_success_rate=("decoder_success", "mean"),
         spectral_failure_rate=("spectral_failure", "mean"),
-        median_A_error=("A_frobenius_error", "median"),
-        q90_A_error=("A_frobenius_error", lambda x: float(np.nanquantile(x, 0.90))),
-        median_p_l1_error=("p_l1_error", "median"),
+        median_A_error=("A_frobenius_error_after_label_matching", "median"),
+        q90_A_error=("A_frobenius_error_after_label_matching", lambda x: float(np.nanquantile(x, 0.90))),
+        median_p_l1_error=("p_l1_error_after_label_matching", "median"),
     )
     runs.to_csv(OUT / "finite_shot_runs.csv", index=False)
     summary.to_csv(OUT / "summary.csv", index=False)
@@ -182,7 +194,7 @@ def main():
     ax.set_ylim(-0.02, 1.05)
     ax.set_xlabel("Three-view samples")
     ax.set_ylabel("Probability of exact MAP-decoder recovery")
-    ax.set_title("Generic third view resolves an exact two-view ambiguity")
+    ax.set_title("A generic third view resolves an exact two-view ambiguity")
     ax.grid(alpha=0.25)
     ax.legend()
     fig.tight_layout()

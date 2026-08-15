@@ -1,12 +1,16 @@
 #!/usr/bin/env python3
 """End-to-end finite-shot virtual collision experiment for EIQL.
 
-A system pointer bit controls identical single-qubit collision rotations on m
-independent environment ancillas. Each fragment is then hidden behind an
-independent unknown SU(2) basis. The learner receives only finite-shot Pauli
-measurement outcomes from an orthogonal-array schedule, with symmetric readout
-flips. Decoder axes are reconstructed from environment-environment connected
-pair moments.
+A six-qubit statevector (one system + five environment fragments) is generated
+from |+>_S |0...0>_E by sequential controlled-Ry system-environment collision
+unitaries. Each environment fragment is then conjugated by an independently
+hidden local SU(2) rotation. The learner receives only finite-shot Pauli outcomes
+from an orthogonal-array schedule, with symmetric readout flips, and reconstructs
+local decoder axes from environment-environment connected pair moments.
+
+The primary success criterion is deliberately strict: every recovered fragment
+axis must be within 5 degrees of its oracle Helstrom direction. Mean-axis success
+is retained as a secondary diagnostic.
 """
 
 from pathlib import Path
@@ -25,6 +29,8 @@ SUCCESS_DEG = 5.0
 OUT = Path(__file__).resolve().parent / "outputs"
 OUT.mkdir(parents=True, exist_ok=True)
 
+I2 = np.eye(2, dtype=complex)
+P1 = np.array([[0, 0], [0, 1]], dtype=complex)
 X = np.array([[0, 1], [1, 0]], complex)
 Y = np.array([[0, -1j], [1j, 0]], complex)
 Z = np.array([[1, 0], [0, -1]], complex)
@@ -32,31 +38,93 @@ PAULI = np.array([X, Y, Z])
 
 
 def random_su2(rng):
-    m = rng.normal(size=(2, 2)) + 1j * rng.normal(size=(2, 2))
-    q, r = np.linalg.qr(m)
+    mat = rng.normal(size=(2, 2)) + 1j * rng.normal(size=(2, 2))
+    q, r = np.linalg.qr(mat)
     d = np.diag(r)
     d = d / np.abs(d)
     q = q @ np.diag(np.conj(d))
     return q / np.sqrt(np.linalg.det(q))
 
 
-def bloch(psi):
-    return np.array([np.real(np.vdot(psi, p @ psi)) for p in PAULI])
+def ry(theta):
+    c, s = np.cos(theta / 2), np.sin(theta / 2)
+    return np.array([[c, -s], [s, c]], dtype=complex)
 
 
-def make_collision_records(theta_deg, rng):
-    t = np.deg2rad(theta_deg)
-    e0 = np.array([1, 0], complex)
-    e1 = np.array([np.cos(t / 2), np.sin(t / 2)], complex)
-    records = []
-    oracle = []
+def kron_all(ops):
+    out = np.array([[1.0 + 0.0j]])
+    for op in ops:
+        out = np.kron(out, op)
+    return out
+
+
+def controlled_single_qubit_unitary(control, target, unitary, n_qubits):
+    """I + |1><1|_control tensor (U-I)_target on an n-qubit register."""
+    ops = []
+    for q in range(n_qubits):
+        if q == control:
+            ops.append(P1)
+        elif q == target:
+            ops.append(unitary - I2)
+        else:
+            ops.append(I2)
+    return np.eye(2**n_qubits, dtype=complex) + kron_all(ops)
+
+
+def apply_single_qubit_state(state, unitary, target, n_qubits):
+    tensor = state.reshape([2] * n_qubits)
+    moved = np.moveaxis(tensor, target, 0).reshape(2, -1)
+    moved = unitary @ moved
+    rebuilt = moved.reshape([2] + [2] * (n_qubits - 1))
+    return np.moveaxis(rebuilt, 0, target).reshape(-1)
+
+
+def collision_state(theta_deg):
+    """Generate the global S-E state by explicit sequential controlled collisions."""
+    n_qubits = M + 1
+    plus = np.array([1, 1], dtype=complex) / np.sqrt(2)
+    zero = np.array([1, 0], dtype=complex)
+    state = plus
     for _ in range(M):
+        state = np.kron(state, zero)
+
+    u = ry(np.deg2rad(theta_deg))
+    for target in range(1, M + 1):
+        cu = controlled_single_qubit_unitary(0, target, u, n_qubits)
+        state = cu @ state
+    return state / np.linalg.norm(state)
+
+
+def hide_environment_bases(state, rng):
+    n_qubits = M + 1
+    hidden = []
+    out = state.copy()
+    for target in range(1, M + 1):
         u = random_su2(rng)
-        r0, r1 = bloch(u @ e0), bloch(u @ e1)
-        records.append([r0, r1])
-        d = r1 - r0
-        oracle.append(d / np.linalg.norm(d))
-    return np.asarray(records), np.asarray(oracle)
+        hidden.append(u)
+        out = apply_single_qubit_state(out, u, target, n_qubits)
+    return out, hidden
+
+
+def conditional_local_records(global_state):
+    """Extract local conditional states from the explicit global state."""
+    tensor = global_state.reshape([2] * (M + 1))
+    records = np.zeros((M, 2, 3), dtype=float)
+    oracle = np.zeros((M, 3), dtype=float)
+
+    for x in (0, 1):
+        branch = tensor[x].reshape(-1)
+        branch /= np.linalg.norm(branch)
+        branch_tensor = branch.reshape([2] * M)
+        for j in range(M):
+            moved = np.moveaxis(branch_tensor, j, 0).reshape(2, -1)
+            rho = moved @ moved.conj().T
+            records[j, x] = [float(np.real(np.trace(p @ rho))) for p in PAULI]
+
+    for j in range(M):
+        delta = records[j, 1] - records[j, 0]
+        oracle[j] = delta / np.linalg.norm(delta)
+    return records, oracle
 
 
 def oa_schedule(m):
@@ -137,13 +205,16 @@ def axis_errors_deg(axes, oracle):
 
 def main():
     schedule = oa_schedule(M)
+    base_states = {theta: collision_state(theta) for theta in THETA_GRID}
     rows = []
+
     for theta in THETA_GRID:
         distinguishability = float(np.sin(np.deg2rad(theta) / 2))
         for shots in SHOTS_PER_SETTING:
             for world in range(WORLDS):
                 rng = np.random.default_rng(SEED + theta * 100000 + shots * 100 + world)
-                records, oracle = make_collision_records(theta, rng)
+                hidden_state, _ = hide_environment_bases(base_states[theta], rng)
+                records, oracle = conditional_local_records(hidden_state)
                 sched, data = sample_counts(records, shots, rng)
                 axes = estimate_axes(sched, data)
                 errs = axis_errors_deg(axes, oracle)
@@ -157,33 +228,45 @@ def main():
                     "mean_axis_error_deg": float(errs.mean()),
                     "max_axis_error_deg": float(errs.max()),
                     "success_mean_error_le_5deg": bool(errs.mean() <= SUCCESS_DEG),
+                    "success_all_fragments_le_5deg": bool(errs.max() <= SUCCESS_DEG),
                     "readout_flip_probability": READOUT_Q,
+                    "explicit_global_statevector_dynamics": True,
                 })
 
     runs = pd.DataFrame(rows)
     summary = runs.groupby([
         "theta_deg", "local_trace_distinguishability_D", "shots_per_setting", "total_physical_events"
     ], as_index=False).agg(
-        success_rate=("success_mean_error_le_5deg", "mean"),
+        strict_all_fragment_success_rate=("success_all_fragments_le_5deg", "mean"),
+        mean_error_success_rate=("success_mean_error_le_5deg", "mean"),
         median_mean_axis_error_deg=("mean_axis_error_deg", "median"),
         q90_mean_axis_error_deg=("mean_axis_error_deg", lambda x: float(np.quantile(x, 0.90))),
         median_max_axis_error_deg=("max_axis_error_deg", "median"),
+        q90_max_axis_error_deg=("max_axis_error_deg", lambda x: float(np.quantile(x, 0.90))),
     )
     runs.to_csv(OUT / "runs.csv", index=False)
     summary.to_csv(OUT / "summary.csv", index=False)
 
-    pivot = summary.pivot(index="theta_deg", columns="shots_per_setting", values="success_rate")
-    fig, ax = plt.subplots(figsize=(7.3, 4.8))
+    pivot = summary.pivot(
+        index="local_trace_distinguishability_D",
+        columns="shots_per_setting",
+        values="strict_all_fragment_success_rate",
+    )
+    fig, ax = plt.subplots(figsize=(7.5, 4.9))
     image = ax.imshow(pivot.values, origin="lower", aspect="auto", vmin=0, vmax=1)
     ax.set_xticks(range(len(pivot.columns)), [str(x) for x in pivot.columns])
-    ax.set_yticks(range(len(pivot.index)), [str(x) for x in pivot.index])
+    ylabels = []
+    for d in pivot.index:
+        theta = summary.loc[np.isclose(summary.local_trace_distinguishability_D, d), "theta_deg"].iloc[0]
+        ylabels.append(f"{d:.3f} ({theta:g}°)")
+    ax.set_yticks(range(len(pivot.index)), ylabels)
     ax.set_xlabel("Shots per OA Pauli setting")
-    ax.set_ylabel("Collision angle theta [deg]")
-    ax.set_title(f"Virtual collision experiment: P(mean axis error <= {SUCCESS_DEG:g} deg), q={READOUT_Q}")
+    ax.set_ylabel("Local trace distinguishability D (collision angle)")
+    ax.set_title(f"Explicit collision dynamics: P(max axis error <= {SUCCESS_DEG:g}°), readout q={READOUT_Q}")
     for iy in range(len(pivot.index)):
         for ix in range(len(pivot.columns)):
             ax.text(ix, iy, f"{pivot.values[iy, ix]:.2f}", ha="center", va="center", fontsize=8)
-    fig.colorbar(image, ax=ax, label="Recovery success probability")
+    fig.colorbar(image, ax=ax, label="All-fragment recovery probability")
     fig.tight_layout()
     fig.savefig(OUT / "collision_recovery_phase_diagram.png", dpi=220)
     plt.close(fig)
