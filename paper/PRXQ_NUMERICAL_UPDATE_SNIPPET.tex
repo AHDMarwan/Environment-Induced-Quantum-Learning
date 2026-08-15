@@ -1,0 +1,93 @@
+% Manuscript-ready numerical update for the current PRX Quantum draft.
+% Generated from the tightened hardware-informed simulation suite.
+% This is a standalone insertion fragment; figure filenames should be adjusted
+% after exporting the desired GitHub Actions artifacts into the final source tree.
+
+\subsection{Exact multiclass ambiguity and finite-shot third-view recovery}
+
+The commuting three-class counterexample of Appendix~B is not a finite-sample
+pathology.  The two latent decompositions reconstruct the same two-view
+distribution to $1.39\times10^{-17}$ in max norm while their optimal local MAP
+rules differ, $(0,1,2)$ versus $(1,1,2)$.  To test the corresponding positive
+three-view statement, we append a representative well-conditioned third
+stochastic view with condition number $\kappa(C)=2.5$ and estimate the required
+observable moments from independent samples.  A spectral three-view
+reconstruction recovers the latent factors up to a common permutation;
+permutation matching to the known simulation labels is performed only after
+reconstruction for evaluation.  Exact decoder recovery rises from $0.20$ at
+$10^3$ samples to $0.925$ at $3\times10^4$ and $1.00$ at $10^5$, while spectral
+failures fall to zero by $3\times10^4$ samples.  This illustrates statistical
+recovery in one well-conditioned generic instance; it is not a universal
+finite-sample efficiency claim for tensor decomposition.
+
+\subsection{Binary finite-shot scaling and residual-correlation robustness}
+
+We next test the finite-shot and model-mismatch structure of the binary result
+directly.  For balanced binary qubit records with Bloch contrasts
+$c=0.50,0.75,1.00$, same-event randomized Pauli-shadow snapshots are used to
+estimate the connected two-fragment operator.  Across five sample sizes,
+log--log fits of the median decoder Hilbert--Schmidt sin-angle error versus the
+number $N$ of paired estimates give slopes $-0.489$, $-0.519$, and $-0.489$,
+respectively, close to the expected $N^{-1/2}$ statistical scaling.  The
+rescaled quantity $c^2\sqrt{N}\,\sin\theta$ remains approximately constant,
+with means between $3.58$ and $3.99$ across the three contrasts, consistent
+with inverse conditioning by the rank-one signal scale $\lambda\propto c^2$.
+The explicit concentration bound is substantially more conservative than the
+observed error and is not interpreted as a tight performance prediction.
+
+To probe departures from conditional independence, we add a traceless
+two-fragment correlation term that preserves both local conditional marginals.
+Writing $\nu=I(E_i:E_j\mid X)$ in bits, the population decoder-direction error
+is fit over the tested physical range by
+\begin{equation}
+\sin\theta_{\rm pop}=1.662\sqrt{\nu}+0.014,
+\qquad R^2=0.995.
+\end{equation}
+Finite-shot medians at $2N=16384$ physical events track the same degradation.
+This behavior is consistent with the square-root perturbative dependence that
+enters the Pinsker--Wedin robustness analysis, while again showing that the
+worst-case bound is conservative.  We distinguish the condition
+$\eta<\lambda$, under which the displayed perturbation expression exists, from
+the stronger regime $\eta/(\lambda-\eta)<1$ in which the angular bound is
+numerically more informative than the trivial inequality $\sin\theta\le1$.
+
+\subsection{Explicit finite-shot virtual collision experiment}
+
+We finally test the environment-only decoder estimator in an end-to-end virtual
+experiment rather than inserting conditional record states directly.  Starting
+from $\lvert+\rangle_S\lvert0\cdots0\rangle_E$, five sequential controlled-$R_y$
+collisions generate a six-qubit system--environment state.  Each environmental
+qubit is then conjugated by an independently unknown local $SU(2)$ rotation.
+The learner has no system access and receives only finite-shot environmental
+Pauli outcomes from a 27-setting orthogonal-array schedule, with independent
+symmetric readout flips of probability $q=0.02$.  Recovery is declared
+successful only when every one of the five learned local decoder axes lies
+within $5^\circ$ of its oracle Helstrom direction.
+
+At perfect local trace distinguishability $D=1$, strict all-fragment success
+increases from $0.314$ at 64 shots per setting to $0.800$, $0.971$, and $1.000$
+at 128, 256, and 512 shots, respectively.  At $D=0.707$, the corresponding
+rates are $0$, $0.143$, $0.486$, and $0.829$; at $D=0.866$ they are $0.143$,
+$0.457$, $0.886$, and $1.000$.  The resulting phase boundary makes explicit
+the joint role of record strength and finite measurement budget.  This is a
+hardware-informed simulation with explicit microscopic unitary dynamics,
+unknown readout bases, finite counts, and readout noise, not a device-calibrated
+hardware experiment.
+
+% Suggested combined caption for a three-panel theory-matched figure:
+% (a) Finite-shot binary decoder recovery and c^2 sqrt(N) data collapse.
+% (b) Decoder-direction degradation versus sqrt(I(E_i:E_j|X)), including the
+% population fit and finite-shot median.  The Pinsker/Wedin curve is shown only
+% where it is informative (<1).  (c) Exact two-view multiclass ambiguity and
+% finite-shot three-view decoder recovery.  Together the panels test the
+% sampling, model-mismatch, and view-count boundaries of the identifiability
+% hierarchy.
+
+% Suggested collision phase-diagram caption:
+% Strict all-fragment decoder recovery in the explicit six-qubit virtual
+% collision experiment.  The state is generated by five sequential controlled-
+% Ry collisions, each environment fragment is hidden by an independent local
+% SU(2), and the learner uses a 27-setting environment-only Pauli schedule with
+% q=0.02 symmetric readout flips.  Each cell is the fraction of 35 hidden-basis
+% worlds in which all five recovered decoder axes are within 5 degrees of their
+% oracle Helstrom directions.
