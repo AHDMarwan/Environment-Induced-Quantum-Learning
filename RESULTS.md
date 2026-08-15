@@ -175,3 +175,104 @@ Across 100 stratified train/test splits:
 - supervised logistic regression reference: `0.9562 ± 0.0244`
 
 Again, this is a classical sanity check only.
+
+## 8. Hardware-informed identifiability and finite-shot suite — 2026-08-15
+
+These four benchmarks are aligned with the current identifiability paper rather than the earlier agreement-richness objective. They are reproducible simulation studies run by `.github/workflows/hardware-informed-experiments.yml`. The tightened workflow run completed successfully for all four jobs. None is a hardware experiment.
+
+### 8.1 Binary finite-shot connected-operator recovery
+
+File: `experiments/09_finite_shot_theorem2/theorem2_finite_shot.py`
+
+The learner receives only same-event randomized local Pauli-shadow snapshots. For equal-prior binary records with local Bloch contrast `c`, the median Hilbert-Schmidt sin-angle error shows nearly ideal inverse-square-root scaling in the number `N` of paired samples:
+
+| contrast c | fitted log-log slope vs N | R^2 | mean of median c^2 sqrt(N) error |
+|---:|---:|---:|---:|
+| 0.50 | -0.488584 | 0.998474 | 3.671809 |
+| 0.75 | -0.519444 | 0.985404 | 3.577065 |
+| 1.00 | -0.489423 | 0.998506 | 3.994245 |
+
+The fitted slopes are close to `-1/2`, and `c^2 sqrt(N) * error` is approximately constant across the tested contrast values. This is consistent with `N^{-1/2}` estimation error amplified by the inverse connected-operator signal scale `lambda ~ c^2`.
+
+Representative median sin-angle errors:
+
+| c | physical events 2N | median sin-angle error |
+|---:|---:|---:|
+| 0.50 | 1,024 | 0.609752 |
+| 0.50 | 262,144 | 0.039785 |
+| 0.75 | 1,024 | 0.316293 |
+| 0.75 | 262,144 | 0.014944 |
+| 1.00 | 1,024 | 0.170284 |
+| 1.00 | 262,144 | 0.011156 |
+
+The explicit worst-case theorem bound is deliberately conservative. In this grid it becomes numerically informative (`bound < 1`) only at the largest sample sizes for the stronger contrasts. The simulation supports the predicted statistical/conditioning scaling; it does not claim tightness of the finite-shot constant.
+
+### 8.2 Controlled conditional-correlation model mismatch
+
+File: `experiments/10_conditional_correlation/conditional_correlation_stress.py`
+
+A traceless two-fragment correlation term is added while preserving both local conditional marginals. Let `nu = I(E_i:E_j | X)` in bits. Across the tested positive-state range, the population decoder-direction error is extremely well fit by
+
+`sin(theta)_pop = 1.66191 * sqrt(nu) + 0.014051`, with `R^2 = 0.994811`.
+
+| nu (bits) | population sin-angle | finite-shot median sin-angle (2N=16,384) |
+|---:|---:|---:|
+| 0.000000 | 0.000000 | 0.067428 |
+| 0.001343 | 0.070828 | 0.108575 |
+| 0.005399 | 0.140601 | 0.161949 |
+| 0.012254 | 0.208343 | 0.230904 |
+| 0.022065 | 0.273217 | 0.273394 |
+| 0.035095 | 0.334570 | 0.318323 |
+| 0.051785 | 0.391947 | 0.404711 |
+| 0.072930 | 0.445093 | 0.447032 |
+
+The finite-shot medians track the population degradation as conditional correlations increase. The Pinsker/Wedin bound has the correct perturbative square-root structure but is conservative: `eta < lambda` guarantees existence of the displayed perturbation expression, whereas an angular bound smaller than the trivial `sin(theta) <= 1` additionally requires `eta/(lambda-eta) < 1` (equivalently `eta < lambda/2`).
+
+### 8.3 Exact two-view multiclass ambiguity versus three-view recovery
+
+File: `experiments/11_multiclass_views/multiclass_two_vs_three.py`
+
+The exact commuting three-class counterexample has two distinct latent decompositions whose observed two-view distributions differ by only `1.387779e-17` in max norm, while their optimal MAP decoders on view A are `0-1-2` and `1-1-2`.
+
+A representative well-conditioned third stochastic view has condition number `2.5`; the two-view matrix has condition number `12.002399`. Finite-sample spectral three-view recovery gives:
+
+| samples | exact decoder recovery | spectral failure | median ||Ahat-A||_F | median ||phat-p||_1 |
+|---:|---:|---:|---:|---:|
+| 1,000 | 0.2000 | 0.2625 | 0.357247 | 0.490247 |
+| 3,000 | 0.4750 | 0.0500 | 0.275599 | 0.333123 |
+| 10,000 | 0.6875 | 0.0250 | 0.166534 | 0.187335 |
+| 30,000 | 0.9250 | 0.0000 | 0.100090 | 0.102958 |
+| 100,000 | 1.0000 | 0.0000 | 0.043610 | 0.045746 |
+
+The recovery algorithm uses only observable moments. Because latent components are identifiable only up to a common permutation, oracle permutation matching is performed strictly after recovery for benchmark scoring; the true latent matrix is not used by the reconstruction routine.
+
+### 8.4 Explicit six-qubit virtual collision experiment
+
+File: `experiments/12_collision_virtual/collision_phase_diagram.py`
+
+This benchmark now starts from the explicit global state `|+>_S |0...0>_E` and applies five sequential controlled-`R_y` system-environment collision unitaries. Each of the five environmental fragments is then independently conjugated by an unknown local `SU(2)` basis. The learner sees finite-shot environment-only Pauli outcomes using a 27-setting orthogonal-array schedule with symmetric readout-flip probability `q=0.02`.
+
+The primary success criterion is strict: **all five** learned fragment axes must have error at most `5 deg`. The table reports strict recovery probability over 35 independently hidden-basis worlds.
+
+| local trace distinguishability D | 64 shots/setting | 128 | 256 | 512 |
+|---:|---:|---:|---:|---:|
+| 0.342020 | 0.000 | 0.000 | 0.000 | 0.000 |
+| 0.500000 | 0.000 | 0.000 | 0.057 | 0.171 |
+| 0.707107 | 0.000 | 0.143 | 0.486 | 0.829 |
+| 0.866025 | 0.143 | 0.457 | 0.886 | 1.000 |
+| 1.000000 | 0.314 | 0.800 | 0.971 | 1.000 |
+
+At `D=1`, the median worst-fragment axis error decreases from `6.106 deg` at 64 shots/setting to `2.181 deg` at 512. At `D=0.707107`, it decreases from `10.137 deg` to `3.551 deg` over the same range. Weak records remain unresolved at the tested budget, producing a clear finite-resource/record-strength recovery boundary.
+
+This is an end-to-end **virtual experiment**, not a hardware demonstration: microscopic system-environment unitary dynamics, unknown local readout bases, finite Pauli counts, and readout noise are simulated explicitly, but no device-calibrated channel or laboratory data are used.
+
+### Interpretation boundary for the new suite
+
+The defensible claims are:
+
+1. binary finite-shot recovery exhibits the expected `N^{-1/2}` scaling and contrast-conditioned `c^{-2}` behavior in the tested model;
+2. controlled conditional correlations generate decoder error approximately linear in `sqrt(I(E_i:E_j|X))` over the tested perturbative family;
+3. the exact two-view multiclass ambiguity is not a finite-sample artifact, while a well-conditioned third view enables increasingly reliable finite-sample recovery;
+4. an explicit system-environment collision model with unknown local bases and finite noisy readout displays a measurable resource-versus-record-strength recovery boundary.
+
+These results do **not** establish tight theorem constants, universal efficiency of three-view tensor methods, robustness to arbitrary correlated noise, a hardware demonstration, or a quantum advantage.
