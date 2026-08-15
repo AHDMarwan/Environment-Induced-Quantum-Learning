@@ -6,6 +6,10 @@ and add a traceless correlation term gamma X tensor Z / 4 to each conditional
 state. The perturbation preserves both local conditional marginals but violates
 conditional independence, giving a controlled model-mismatch axis for the
 robust binary decoder theorem.
+
+The analysis distinguishes the theorem's existence condition eta < lambda from
+an operationally informative angular bound eta/(lambda-eta) < 1, and directly
+fits the population decoder error against sqrt(I(E_i:E_j|X)).
 """
 
 from pathlib import Path
@@ -88,8 +92,10 @@ def population_quantities(gamma):
     delta_norm = float(np.linalg.norm(delta_i, "fro"))
     lam = 0.25 * delta_norm**2
     eta = math.sqrt(2.0 * math.log(2.0) * nu)
-    bound = eta / (lam - eta) if eta < lam else math.nan
-    return rhos, nu, lam, eta, bound, pop_sin, float(s[0])
+    existence = bool(eta < lam)
+    bound = eta / (lam - eta) if existence else math.nan
+    informative = bool(existence and bound < 1.0)
+    return rhos, nu, lam, eta, bound, existence, informative, pop_sin, float(s[0])
 
 
 def expectation_tables(rhos):
@@ -151,18 +157,31 @@ def paired_shadow_estimate(rhos, rng):
     return math.sqrt(max(0.0, 1.0 - abs(float(uhat[:, 0] @ true)) ** 2))
 
 
+def fit_sqrt_nu(nu, y):
+    x = np.sqrt(np.asarray(nu, dtype=float))
+    y = np.asarray(y, dtype=float)
+    slope, intercept = np.polyfit(x, y, 1)
+    pred = slope * x + intercept
+    ss_res = float(np.sum((y - pred) ** 2))
+    ss_tot = float(np.sum((y - y.mean()) ** 2))
+    r2 = 1.0 - ss_res / ss_tot if ss_tot > 0 else 1.0
+    return float(slope), float(intercept), r2, pred
+
+
 def main():
     pop_rows = []
     shot_rows = []
     for gamma in GAMMAS:
-        rhos, nu, lam, eta, bound, pop_sin, leading_sv = population_quantities(float(gamma))
+        rhos, nu, lam, eta, bound, existence, informative, pop_sin, leading_sv = population_quantities(float(gamma))
         pop_rows.append({
             "gamma": gamma,
             "conditional_mutual_information_bits": nu,
+            "sqrt_conditional_mutual_information": math.sqrt(nu),
             "lambda_signal": lam,
             "eta_pinsker": eta,
             "robust_bound": bound,
-            "bound_nonvacuous": bool(eta < lam),
+            "theorem_existence_condition_eta_lt_lambda": existence,
+            "theorem_bound_informative_lt_one": informative,
             "population_sin_angle": pop_sin,
             "population_leading_singular_value": leading_sv,
         })
@@ -185,24 +204,41 @@ def main():
     )
     summary = pop.merge(finite, on="gamma", how="left")
 
+    slope, intercept, r2, pred = fit_sqrt_nu(
+        summary.conditional_mutual_information_bits,
+        summary.population_sin_angle,
+    )
+    summary["sqrt_nu_linear_fit_population_sin"] = pred
+    fit = pd.DataFrame([{
+        "model": "population_sin_angle = slope*sqrt(nu_bits) + intercept",
+        "slope": slope,
+        "intercept": intercept,
+        "r_squared": r2,
+        "n_points": len(summary),
+    }])
+
     pop.to_csv(OUT / "population.csv", index=False)
     shots.to_csv(OUT / "finite_shot_runs.csv", index=False)
     summary.to_csv(OUT / "summary.csv", index=False)
+    fit.to_csv(OUT / "sqrt_nu_fit.csv", index=False)
 
-    fig, ax = plt.subplots(figsize=(7.2, 4.7))
-    ax.plot(summary.conditional_mutual_information_bits, summary.population_sin_angle,
-            marker="o", label="population direction error")
-    ax.plot(summary.conditional_mutual_information_bits, summary.finite_median_sin_angle,
-            marker="s", label=f"finite-shot median (2N={2*N_PAIRS})")
-    ax.plot(summary.conditional_mutual_information_bits, summary.finite_q90_sin_angle,
-            linestyle="--", marker=".", label="finite-shot 90% quantile")
-    valid = summary[summary.bound_nonvacuous]
-    if len(valid):
-        ax.plot(valid.conditional_mutual_information_bits, np.minimum(valid.robust_bound, 1.5),
-                linestyle=":", marker="x", label="Pinsker/Wedin bound")
-    ax.set_xlabel(r"Conditional mutual information $I(E_i:E_j|X)$ [bits]")
+    fig, ax = plt.subplots(figsize=(7.4, 4.8))
+    x = summary.sqrt_conditional_mutual_information
+    ax.plot(x, summary.population_sin_angle, marker="o", label="population direction error")
+    ax.plot(x, summary.sqrt_nu_linear_fit_population_sin, linestyle=":",
+            label=fr"linear fit: $R^2={r2:.3f}$")
+    ax.plot(x, summary.finite_median_sin_angle, marker="s",
+            label=f"finite-shot median (2N={2*N_PAIRS})")
+    ax.plot(x, summary.finite_q90_sin_angle, linestyle="--", marker=".", label="finite-shot 90% quantile")
+
+    informative = summary[summary.theorem_bound_informative_lt_one]
+    if len(informative):
+        ax.plot(informative.sqrt_conditional_mutual_information, informative.robust_bound,
+                linestyle="-.", marker="x", label="informative Pinsker/Wedin bound (<1)")
+
+    ax.set_xlabel(r"$\sqrt{I(E_i:E_j|X)}$ [bits$^{1/2}$]")
     ax.set_ylabel("Hilbert-Schmidt sin-angle error")
-    ax.set_ylim(0, 1.05)
+    ax.set_ylim(0, 0.65)
     ax.set_title("Controlled violation of conditional independence")
     ax.grid(alpha=0.25)
     ax.legend(fontsize=8)
@@ -211,6 +247,8 @@ def main():
     plt.close(fig)
 
     print(summary.to_string(index=False))
+    print("\nSquare-root CMI fit")
+    print(fit.to_string(index=False))
 
 
 if __name__ == "__main__":
