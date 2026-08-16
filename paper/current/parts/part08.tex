@@ -1,0 +1,50 @@
+A task-specific pair-moment implementation of Theorem~\ref{thm:binary-helstrom} estimates local binary decoder axes from environment-environment correlations.  For five fragments, an orthogonal-array Pauli schedule uses 27 distinct environment-only settings; a stronger specialized baseline with direct access to $S$ uses 9 settings; full six-qubit Pauli tomography uses 729.  At equal total copy budget in the Chen-derived simulation, environment-only and system-assisted methods have comparable decoder-axis errors.  The conclusion is therefore not a universal resource advantage.  The tradeoff is operational: removing direct system access can be achieved without full-state reconstruction, at the cost of additional environmental measurements relative to a specialized system-assisted protocol.
+
+\begin{figure*}[t]
+\centering
+\begin{minipage}{0.48\textwidth}
+\centering
+\includegraphics[width=\linewidth]{fig8a_equal_budget.pdf}
+\end{minipage}\hfill
+\begin{minipage}{0.48\textwidth}
+\centering
+\includegraphics[width=\linewidth]{fig8b_settings_scaling.pdf}
+\end{minipage}
+\caption{Task-specific resource benchmark retained from the earlier EIQL study.  Left: decoder-axis error at equal total copy budget for an environment-only pair-moment estimator and a stronger system-assisted correlation baseline.  Right: distinct measurement-setting counts.  The comparison demonstrates an access tradeoff, not a universal sample-complexity advantage.}
+\label{fig:resource}
+\end{figure*}
+
+\section{Discussion}
+
+The analysis changes the original EIQL interpretation in three ways.  The earlier agreement-richness objective is retained in Appendix~\ref{app:agreement} as a practical heuristic with a documented failure boundary, not as a foundational identification principle.
+
+First, redundancy is not merely an agreement signal.  In product-record models it changes the geometry of the inverse problem: response overlaps and support coherences multiply across fragments.  This can improve robust rank and, in rank-deficient branching models, create support transversality.  However, more redundancy is not automatically better for full state reconstruction because product spectra can become poorly conditioned.  Decoder learning can therefore be substantially easier than latent-state tomography.
+
+Second, there is no universal fragment count.  Two fragments suffice for equal-prior binary Helstrom decoding, but Proposition~\ref{prop:unequal-prior} shows that even a known unequal prior can restore ambiguity.  Pairwise data can also suffice in structured SBS-like multiclass regimes, whereas generic multiclass common-support records can require a third view for full latent identification.  The relevant question is not simply ``how many fragments?'' but ``which object is being identified, what prior structure is known, and what geometry do the records have?''
+
+Third, structural identifiability and semantics are distinct.  Even perfect reconstruction of a latent environmental record does not prove that the latent variable is a property of the designated system.  The passive no-go theorem makes this unavoidable.  Physics enters through trusted causal structure: a known interaction model, a system preparation interface, or an intervention whose target is controlled.  The four-way intervention tensor provides one constructive route.
+
+The theory remains conditional on branching or related low-order latent structure.  Non-Markovian environments, inter-fragment interactions, and scrambling can violate those assumptions \cite{galve2016,duruisseau2023}.  The new numerical suite probes two such practical boundaries---finite sampling and a controlled conditional-correlation defect---and the microscopic collision model verifies that the estimator can be driven from microscopic $S$--$E$ dynamics rather than analytically inserted record states.  These checks do not remove the structural assumptions: they cover a restricted perturbation family and a small qubit model.  The finite-shot binary theorem gives a closed-form concentration bound, but its snapshot constants can scale strongly with fragment dimension, and the generic multiclass finite-sample theory still inherits conditioning requirements from robust tensor decomposition.  The SBS spectral construction likewise requires operator-level estimation of $\sigma_B$ and $K_B$ and is not asserted to be measurement-cheap in generic dimension.  All present validation remains simulation-only; neither the Chen-derived benchmark nor the readout-noise and collision studies are calibrated to a specific device.  These limitations preclude claims of broad experimental self-calibration.
+
+The resulting interpretation is therefore modest but concrete.  Quantum Darwinism explains why the environment can become a public witness.  EIQL asks when an observer can infer how that witness should be read.  Readability, statistical identifiability, and causal semantics are different layers of that task.
+
+\section{Conclusion}
+
+We formulated unknown environmental readout as an identifiability problem downstream of Quantum Darwinism.  The results organize into three pillars.  Passive identifiability is target-dependent: equal-prior binary records admit exact, robust, and finite-shot two-fragment Helstrom-decoder recovery, whereas a known unequal prior can already destroy decoder identifiability; multiclass pairwise data recover a discriminant subspace, a generic third view restores full latent recovery, and SBS support structure provides a separate pairwise route.  Redundancy acts as an inverse-conditioning resource by suppressing response overlap and support coherence, with quantified hardware and spectral-conditioning penalties.  Finally, passive structural recovery cannot universally assign system semantics, while a trusted intervention supplies an additional tensor mode that can break that ambiguity.
+
+The hardware-informed simulations support the same hierarchy at finite resources: binary recovery follows the expected statistical scaling, controlled conditional correlations degrade the inferred direction at the anticipated square-root scale, a third view resolves the tested multiclass ambiguity, and microscopic collision dynamics exhibit a shot- and record-strength-dependent recovery boundary.  These are operational stress tests rather than hardware validation.  The theory does not replace Quantum Darwinism, SBS, tensor learning, or quantum tomography.  It organizes them around a different operational question: under what physical and statistical conditions can redundant environmental records reveal their own usable readout, and what additional information is required before that readout can be called a record of the system?
+
+\section*{Data Availability}
+No external or proprietary datasets were used.  The numerical data shown in the figures are generated from the analytical models and simulation procedures described in the manuscript.  An ancillary reproducibility archive accompanying the submission contains the scripts and numerical tables used for the finite-shot binary study, conditional-correlation stress test, multiclass two-versus-three-view experiment, microscopic collision-model phase diagram, near-SBS and conditioning checks, Chen-derived simulation benchmark, resource comparison, and algebraic counterexamples.  The Chen-derived benchmark uses the published experimental architecture only; it does not use raw experimental events.
+
+
+\clearpage
+\section*{References}
+\begin{thebibliography}{99}
+\footnotesize
+
+\bibitem{wootters1982} W. K. Wootters and W. H. Zurek, A single quantum cannot be cloned, \emph{Nature} \textbf{299}, 802 (1982).
+\bibitem{barnum1996} H. Barnum, C. M. Caves, C. A. Fuchs, R. Jozsa, and B. Schumacher, Noncommuting mixed states cannot be broadcast, \emph{Phys. Rev. Lett.} \textbf{76}, 2818 (1996).
+\bibitem{zurek2003} W. H. Zurek, Decoherence, einselection, and the quantum origins of the classical, \emph{Rev. Mod. Phys.} \textbf{75}, 715 (2003).
+\bibitem{ollivier2004} H. Ollivier, D. Poulin, and W. H. Zurek, Objective properties from subjective quantum states: Environment as a witness, \emph{Phys. Rev. Lett.} \textbf{93}, 220401 (2004).
+\bibitem{ollivier2005} H. Ollivier, D. Poulin, and W. H. Zurek, Environment as a witness: Selective proliferation of information and emergence of objectivity in a quantum universe, \emph{Phys. Rev. A} \textbf{72}, 042113 (2005).
