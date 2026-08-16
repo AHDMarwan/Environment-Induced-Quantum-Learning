@@ -1,0 +1,103 @@
+\begin{theorem}[Passive environment-only semantic no-go]
+\label{thm:semantic-nogo}
+There is no protocol restricted to measurements of the environment that can universally determine which perfectly redundant environmental variable is the pointer variable of the designated system.  The impossibility persists with arbitrary collective measurements on arbitrarily many copies of the reduced environment state.
+\end{theorem}
+
+\begin{proof}
+Let each fragment contain two record degrees of freedom, $E_j=E_j^X\otimes E_j^N$, and define
+\begin{equation}
+\rho_E=\frac14\sum_{x,n=0}^{1}\bigotimes_{j=1}^{m}
+\left(\ketbra{x}_{E_j^X}\otimes\ketbra{n}_{E_j^N}\right).
+\label{eq:same-env}
+\end{equation}
+Consider two globally different physical models.  In the first,
+\begin{equation}
+\rho^{(X)}_{SE}=\frac14\sum_{x,n}\ketbra{x}_S\otimes
+\bigotimes_j(\ketbra{x}_{E_j^X}\otimes\ketbra{n}_{E_j^N}),
+\end{equation}
+so $X$ is the system record and $N$ is nuisance.  In the second,
+\begin{equation}
+\rho^{(N)}_{SE}=\frac14\sum_{x,n}\ketbra{n}_S\otimes
+\bigotimes_j(\ketbra{x}_{E_j^X}\otimes\ketbra{n}_{E_j^N}),
+\end{equation}
+so $N$ is the system record and $X$ is nuisance.  Tracing out $S$ gives the same $\rho_E$ in both cases.  Hence every environment-only measurement, including a collective measurement on $\rho_E^{\otimes N}$ for arbitrary $N$, has identical statistics in the two models, although the system-semantic readout differs.\qedhere
+\end{proof}
+
+The theorem is deliberately scoped.  Trusted knowledge about the interaction Hamiltonian, preparation interface, or a controlled intervention can rule out one of the globally distinct models.  The obstruction is therefore not that pointer semantics is unknowable in principle, but that passive reduced-environment statistics cannot universally supply the missing causal reference.  This is the same logical type of observational-equivalence obstruction encountered in causal inference, now applied to redundant environmental records.
+
+\subsubsection{Intervention-assisted semantic anchoring}
+\label{sec:intervention}
+
+Theorem~\ref{thm:semantic-nogo} says that passive environmental structure cannot universally determine which latent cause belongs to the designated system.  A trusted intervention can break that symmetry without supplying shot-wise pointer labels.
+
+Let $\Lambda$ be a randomized control setting applied through a trusted system interface, with known sampling probabilities $\pi_\lambda$.  Allow a nuisance coordinate $N$ correlated with $X$, but assume that the nuisance mechanism and record channels are invariant under the intervention:
+\begin{equation}
+P(X=x,N=n|\Lambda=\lambda)=p_x^{(\lambda)}q_{n|x}.
+\label{eq:intervention-factor}
+\end{equation}
+Let three conditionally independent environmental views have response factors $u_{xn},v_{xn},w_{xn}$.  The observed four-way tensor is
+\begin{equation}
+\mathcal T_{\lambda abc}
+=P(\Lambda=\lambda,A=a,B=b,C=c).
+\end{equation}
+Define
+\begin{align}
+\bar p_x&=\sum_\lambda\pi_\lambda p_x^{(\lambda)},\\
+\bar w_{xn}&=q_{n|x}\bar p_x,\\
+s_x(\lambda)&=\frac{\pi_\lambda p_x^{(\lambda)}}{\bar p_x}.
+\end{align}
+Then
+\begin{equation}
+\mathcal T=\sum_{x,n}\bar w_{xn}\,
+ s_x\otimes u_{xn}\otimes v_{xn}\otimes w_{xn}.
+\label{eq:four-way}
+\end{equation}
+
+\begin{theorem}[Intervention-assisted semantic anchoring]
+\label{thm:intervention}
+Assume the rank-$R$ decomposition in Eq.~\eqref{eq:four-way}, $R=r_Xr_N$, is identifiable up to a common permutation, for example under a sufficient four-way Kruskal condition
+\begin{equation}
+k_S+k_U+k_V+k_W\ge2R+3.
+\end{equation}
+If the intervention profiles $s_x$ are pairwise distinct, then the recovered latent components can be partitioned uniquely into system-derived classes $x$ by equality of their intervention profiles.  The grouping is unaffected by the nuisance index $n$.
+\end{theorem}
+
+\begin{proof}
+For every component $(x,n)$, the $\Lambda$-mode factor is
+\begin{equation}
+\frac{\pi_\lambda p_x^{(\lambda)}q_{n|x}}
+{\sum_\mu\pi_\mu p_x^{(\mu)}q_{n|x}}
+=s_x(\lambda),
+\end{equation}
+so the nuisance factor cancels.  Since all four modes are recovered in one decomposition, no post-hoc alignment between separately decomposed intervention settings is assumed.  Distinct $s_x$ identify the equivalence classes associated with the system response.\qedhere
+\end{proof}
+
+\paragraph{When is the sufficient rank condition nonvacuous?}
+Because $s_{x,n}=s_x$, nuisance variants repeat columns in the intervention mode, and its Kruskal rank can fall to $k_S=1$.  This does not by itself invalidate the four-way condition.  For example, if the three environmental factor matrices each have full Kruskal rank $R$, then
+\begin{equation}
+k_S+k_U+k_V+k_W=1+3R\ge2R+3
+\end{equation}
+for every $R\ge2$.  Repeated intervention profiles therefore shift the rank burden onto sufficiently diverse environmental modes.  The displayed condition is sufficient rather than necessary, and more structured uniqueness arguments may apply when full environmental Kruskal rank is unavailable.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.98\textwidth]{fig6_semantic_intervention_illustration.pdf}
+\caption{\textbf{Passive semantic ambiguity and intervention-assisted anchoring.}
+(a) Two physically different hidden worlds can generate the same environmental observations.  In the system-linked world, a designated system variable produces a latent record $X$ that is redundantly propagated to several fragments; in the nuisance-only world, a common cause $N$ produces the same fragment-output statistics.  An observer restricted to the environment therefore sees identical data in the two cases.
+(b) This observational equivalence is the content of the passive semantic no-go result: environmental data may identify latent structure or even a useful decoder, but passive reconstruction alone cannot universally determine what physical system the recovered variable is \emph{about}.
+(c) A trusted intervention $\Lambda$ on the designated system breaks this equivalence by adding an observed response mode.  Recovered latent components that share the same system value acquire the same intervention profile $s_x$, independent of the nuisance index, and can be grouped by their coherent response across intervention settings.  Nuisance-only components do not exhibit that system-controlled profile.  This is the operational role of the fourth tensor mode in Theorem~\ref{thm:intervention}: the intervention does not provide shot-wise pointer labels; it supplies the causal side information that passive data lack.}
+\label{fig:intervention}
+\end{figure*}
+
+The causal assumption cannot be removed by algebra: the intervention must be trusted to act through the designated system interface while leaving the nuisance mechanism and environmental record channel invariant in the specified sense.  That external physical information is exactly what the passive no-go theorem shows is missing.
+
+
+\section{Experiments and Analysis}\label{sec:experiments}
+\label{sec:numerics}
+
+The theory is mainly analytical.  We complement it with theorem-matched finite-shot and model-mismatch tests, a microscopic system--environment collision-model simulation, the near-SBS spectral check, and a benchmark derived from an external Quantum-Darwinism architecture.  All results in this section are simulations; none uses quantum-hardware data.
+
+\subsection{Finite-shot binary recovery and controlled model mismatch}
+
+Figure~\ref{fig:hardwareinformed}(a) tests the finite-shot pair-moment estimator underlying Theorem~\ref{thm:finite-binary}.  For three binary contrast amplitudes $c\in\{0.50,0.75,1.00\}$, the median decoder sin-angle error follows log--log slopes $-0.489$, $-0.519$, and $-0.489$, respectively, close to the expected $N^{-1/2}$ statistical scaling.  Moreover, $c^2\sqrt N\,\mathrm{median}(\sin\theta)$ remains approximately constant across the tested grid, consistent with the $c^{-2}$ signal conditioning implied by the rank-one connected operator.  The closed-form concentration bound is deliberately worst case and becomes informative only in part of the tested regime; we therefore use the observed scaling, rather than tightness of the prefactor, as the numerical check.
+
