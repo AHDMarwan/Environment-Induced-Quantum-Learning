@@ -1,0 +1,168 @@
+This result corrects a tempting but false universal narrative.  Two-fragment data are not always insufficient: binary equal-prior decoding is a structured exception, and the SBS boundary provides another.  What fails is a generic pairwise claim for the full multiclass decoder or latent ensemble.
+
+\subsubsection{Three-view operational identifiability}
+
+A standard sufficient mechanism for generic multiclass recovery is a third conditionally independent view.  For three compound hardware views $O_A,O_B,O_C$, let their response matrices be
+\begin{equation}
+\begin{aligned}
+A&=[a_{A,1}\ \cdots\ a_{A,r}],\\
+B&=[a_{B,1}\ \cdots\ a_{B,r}],\\
+C&=[a_{C,1}\ \cdots\ a_{C,r}].
+\end{aligned}
+\end{equation}
+The observed tensor is
+\begin{equation}
+T=\sum_{x=1}^{r}p_x\,a_{A,x}\otimes a_{B,x}\otimes a_{C,x}.
+\label{eq:three-view-tensor}
+\end{equation}
+
+\begin{proposition}[Operational three-view identifiability]
+\label{prop:three-view}
+If the Kruskal ranks satisfy
+\begin{equation}
+k_A+k_B+k_C\ge2r+2,
+\label{eq:kruskal}
+\end{equation}
+then Eq.~\eqref{eq:three-view-tensor} determines the weights and all conditional hardware response laws up to one common permutation of the latent label.  Consequently, the Bayes-optimal decoder within every probed hardware setting is identifiable.  Informational completeness is needed only for the stronger corollary that reconstructs the conditional density operators themselves.
+\end{proposition}
+
+This proposition imports established tensor-identifiability theory \cite{allman2009,anandkumar2014,bhaskara2014,sidiropoulos2017}; it is not a new tensor theorem.  Here it separates the generic multiclass regime from the lower-order structured mechanisms developed above and below.
+
+\subsection{Redundancy as an inverse-conditioning resource}
+\label{sec:redundancy-conditioning}
+
+Tensor uniqueness is qualitative.  Statistical learning depends on conditioning.  Product redundancy gives a direct quantitative mechanism.
+
+Normalize each nonzero response vector,
+\begin{equation}
+\widetilde a_{j,x}=a_{j,x}/\|a_{j,x}\|_2,
+\end{equation}
+and define local response coherence
+\begin{equation}
+\mu_j=\max_{x\neq x'}\langle\widetilde a_{j,x},\widetilde a_{j,x'}\rangle.
+\label{eq:response-coherence}
+\end{equation}
+For a conditionally independent block $\mathcal B$, Eq.~\eqref{eq:block-factor} implies
+\begin{equation}
+\langle\widetilde a_{\mathcal B,x},\widetilde a_{\mathcal B,x'}\rangle
+=\prod_{j\in\mathcal B}\langle\widetilde a_{j,x},\widetilde a_{j,x'}\rangle,
+\qquad
+\mu_{\mathcal B}\le\prod_{j\in\mathcal B}\mu_j.
+\label{eq:coherence-product}
+\end{equation}
+
+\begin{theorem}[Redundancy-to-conditioning bound]
+\label{thm:response-conditioning}
+Let $\widetilde A_{\mathcal B}=[\widetilde a_{\mathcal B,1}\ \cdots\ \widetilde a_{\mathcal B,r}]$.  Then
+\begin{align}
+1-(r-1)\mu_{\mathcal B}
+&\le\lambda_{\min}(\widetilde A_{\mathcal B}^\top\widetilde A_{\mathcal B}),\\
+\lambda_{\max}(\widetilde A_{\mathcal B}^\top\widetilde A_{\mathcal B})
+&\le1+(r-1)\mu_{\mathcal B}.
+\end{align}
+In particular, if $(r-1)\mu_{\mathcal B}<1$,
+\begin{equation}
+\sigma_{\min}(\widetilde A_{\mathcal B})
+\ge\sqrt{1-(r-1)\mu_{\mathcal B}}.
+\label{eq:smin-response}
+\end{equation}
+For homogeneous fragments with $\mu_j\le\mu<1$ and $|\mathcal B|=k$,
+\begin{equation}
+\sigma_{\min}(\widetilde A_{\mathcal B})
+\ge\sqrt{1-(r-1)\mu^k}.
+\label{eq:homog-conditioning}
+\end{equation}
+\end{theorem}
+
+\begin{corollary}[Uniform subset conditioning]
+\label{cor:subset-conditioning}
+For any subset $S$ of $q\le r$ response columns,
+\begin{equation}
+\sigma_{\min}(\widetilde A_{\mathcal B,S})
+\ge
+\sqrt{1-(q-1)\mu_{\mathcal B}}
+\ge
+\sqrt{1-(r-1)\mu_{\mathcal B}}.
+\end{equation}
+Hence the same coherence bound supplies a quantitative robust-Kruskal lower bound uniformly over all column subsets for which the right-hand side is positive.
+\end{corollary}
+
+The proof is the same Gershgorin argument applied to the $q\times q$ principal Gram matrix.  The important point is physical: redundancy exponentially suppresses normalized response overlap and can move an inverse problem away from singularity.
+
+\subsubsection{Qubit hardware: projective versus Pauli access}
+
+For binary qubit records with Bloch contrast $\Delta\mathbf r$, define
+\begin{equation}
+D=\frac12\|\rho_1-\rho_0\|_1=\frac12\|\Delta\mathbf r\|_2.
+\end{equation}
+A projective measurement along unit axis $\mathbf n$ produces classical total variation
+\begin{equation}
+t_{\mathbf n}=\frac12|\mathbf n\cdot\Delta\mathbf r|.
+\end{equation}
+Thus unrestricted projective access attains $t=D$, whereas Pauli-only access guarantees
+\begin{equation}
+D/\sqrt3\le t_P\le D.
+\end{equation}
+For two binary probability vectors $p,q$, their normalized Euclidean coherence satisfies
+\begin{equation}
+\mu(p,q)\le\sqrt{1-\TV(p,q)^2}.
+\label{eq:binary-mu-tv}
+\end{equation}
+Therefore
+\begin{equation}
+\mu_{\rm proj}\le\sqrt{1-D^2},\qquad
+\mu_{P}\le\sqrt{1-D^2/3}.
+\label{eq:hardware-coherence}
+\end{equation}
+Combining Eq.~\eqref{eq:hardware-coherence} with product redundancy yields the sufficient block-size curves in Fig.~\ref{fig:hardware}.  In the weak-record regime the Pauli-only guarantee carries a factor-three redundancy penalty relative to an optimally oriented projective axis.  This is a guarantee, not a claim that Pauli measurements are generally optimal.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{redundancy_conditioning_map.pdf}
+\caption{Redundancy as an inverse-conditioning resource for binary qubit records.  The background shows the projective-access lower bound on $\sigma_{\min}$ as a function of local trace distinguishability $D$ and block size $k$.  The solid and dashed curves mark the sufficient $\sigma_{\min}=0.9$ thresholds for unrestricted projective access and the Pauli-only guarantee.  Weak records require large blocks, and hardware restriction shifts the conditioning boundary.}
+\label{fig:hardware}
+\end{figure}
+
+\subsection{Readability is not identifiability: support geometry}
+\label{sec:support}
+
+A scalar state-overlap measure does not determine the identifiability regime.  A second geometry is the support structure of the conditional records.
+
+Let $P_{j,x}$ project onto $\supp\rho_{j,x}$ and define support coherence
+\begin{equation}
+c_j=\max_{x\neq x'}\|P_{j,x}P_{j,x'}\|_\infty.
+\label{eq:support-coherence}
+\end{equation}
+For product blocks $\mathcal B$,
+\begin{equation}
+c_{\mathcal B}\le\prod_{j\in\mathcal B}c_j.
+\label{eq:support-product}
+\end{equation}
+
+\begin{theorem}[Support transversality]
+\label{thm:support-transverse}
+Let $V_1,\ldots,V_r$ be subspaces with projectors $P_x$ and $c=\max_{x\neq x'}\|P_xP_{x'}\|_\infty$.  For all $v_x\in V_x$,
+\begin{equation}
+\begin{aligned}
+\left\|\sum_xv_x\right\|^2
+&\ge[1-(r-1)c]\sum_x\|v_x\|^2,\\
+\left\|\sum_xv_x\right\|^2
+&\le[1+(r-1)c]\sum_x\|v_x\|^2.
+\end{aligned}
+\label{eq:support-frame}
+\end{equation}
+Hence, if $(r-1)c<1$, the subspaces form a stable direct sum.  For homogeneous product records with local support coherence $c<1$,
+\begin{equation}
+\sigma_{\min}(S_{\mathcal B})\ge\sqrt{1-(r-1)c^k},
+\end{equation}
+where $S_{\mathcal B}$ is the block support synthesis map.
+\end{theorem}
+
+This is the quantum support-space analogue of Theorem~\ref{thm:response-conditioning}.  The theorem establishes only stable direct-sum geometry; by itself it does \emph{not} imply a general canonical decomposition of the separable state.  Under additional hypotheses, independent support images enter the so-called $B$-independent separable-state uniqueness results of Alfsen and Shultz \cite{alfsen2012}.  We import that distinction rather than re-prove it.  The EIQL-specific point is narrower: redundant environmental product structure can drive the support geometry toward a regime in which those lower-order uniqueness mechanisms become available.
+
+The marginal conditioning also depends on the eigenvalues inside the supports.  If each normalized block record $\beta_{\mathcal B,x}$ has minimum positive eigenvalue at least $b_{\mathcal B}$ and $p_{\min}=\min_xp_x$, then
+\begin{equation}
+\lambda_{\min}^+\!\left(\sum_xp_x\beta_{\mathcal B,x}\right)
+\ge p_{\min}b_{\mathcal B}[1-(r-1)c_{\mathcal B}].
+\label{eq:marginal-conditioning}
+\end{equation}
