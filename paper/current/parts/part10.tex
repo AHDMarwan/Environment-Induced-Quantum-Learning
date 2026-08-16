@@ -1,0 +1,143 @@
+The Gram matrix $G_B=\widetilde A_B^\top\widetilde A_B$ has diagonal entries one and off-diagonal entries bounded by $\mu_B$.  Gershgorin's theorem places all eigenvalues in
+\begin{equation}
+[1-(r-1)\mu_B,\,1+(r-1)\mu_B].
+\end{equation}
+The singular-value statement follows because the eigenvalues of $G_B$ are the squared singular values of $\widetilde A_B$.  For a subset of $q$ columns, the corresponding principal Gram matrix has the same unit diagonal and off-diagonal bound $\mu_B$, so Gershgorin gives $1-(q-1)\mu_B$ and proves Corollary~\ref{cor:subset-conditioning}.
+
+\subsection{Proof of Theorem~\ref{thm:support-transverse}}
+For $v_x\in V_x$,
+\begin{equation}
+|\langle v_x,v_{x'}\rangle|
+\le\|P_xP_{x'}\|_\infty\|v_x\|\|v_{x'}\|
+\le c\|v_x\|\|v_{x'}\|.
+\end{equation}
+Expanding $\|\sum_xv_x\|^2$ and using
+\begin{equation}
+2\sum_{x<x'}a_xa_{x'}\le(r-1)\sum_xa_x^2
+\end{equation}
+gives Eq.~\eqref{eq:support-frame}.
+
+\subsection{Marginal eigenvalue bound}
+Write $\beta_{\mathcal B,x}=R_xR_x^\dagger$ on its support, with $\sigma_{\min}(R_x)^2\ge b_{\mathcal B}$.  Define
+\begin{equation}
+F(z_1,\ldots,z_r)=\sum_x\sqrt{p_x}R_xz_x.
+\end{equation}
+Then $\rho_B=FF^\dagger$.  The support-transversality theorem applied to $w_x=\sqrt{p_x}R_xz_x$ gives
+\begin{equation}
+\|Fz\|^2\ge[1-(r-1)c_{\mathcal B}]p_{\min}b_{\mathcal B}\|z\|^2,
+\end{equation}
+which proves Eq.~\eqref{eq:marginal-conditioning}.
+
+\subsection{Robust spectral anchor}
+Let $X=\sigma_B^{-1/2}$ and $\widehat X=\rho_B^{-1/2}$ on the ideal occupied support. If $\sigma_B\ge mI$ and $\|\rho_B-\sigma_B\|_\infty\le\eps<m/2$, then $\rho_B\ge mI/2$, so
+\begin{equation}
+\|X\|_\infty\le m^{-1/2},
+\qquad
+\|\widehat X\|_\infty\le\sqrt{2/m}.
+\end{equation}
+The integral representation
+\begin{equation}
+A^{-1/2}=\frac1\pi\int_0^\infty t^{-1/2}(A+tI)^{-1}\,dt
+\end{equation}
+and the resolvent identity imply, on the interval $[m/2,\infty)$,
+\begin{equation}
+\|\widehat X-X\|_\infty
+\le\frac{\sqrt2\,\eps}{m^{3/2}}
+=:d_X.
+\end{equation}
+Because $\|H_A\|_\infty\le1$, one has $-\sigma_B\le K_B\le\sigma_B$ and likewise for the perturbed state; in particular $\|K_B\|_\infty,\|\widehat K_B\|_\infty\le1$. Moreover,
+\begin{equation}
+\|\widehat K_B-K_B\|_\infty\le\eps.
+\end{equation}
+Expand
+\begin{align}
+\widehat L_B-L_B
+={}&(\widehat X-X)\widehat K_B\widehat X
++X(\widehat K_B-K_B)\widehat X\notag\\
+&+XK_B(\widehat X-X).
+\end{align}
+Therefore
+\begin{align}
+\|\widehat L_B-L_B\|_\infty
+&\le d_X\sqrt{2/m}
++\frac{\eps}{\sqrt m}\sqrt{2/m}
++\frac{d_X}{\sqrt m}\notag\\
+&=\frac{\sqrt2\,\eps}{m}
++\frac{(2+\sqrt2)\eps}{m^2},
+\end{align}
+which is Eq.~\eqref{eq:sbs-perturb}. If the distinct ideal eigenvalue clusters are separated by $g$ and $\eta_{\rm SBS}<g/2$, the Hermitian Davis--Kahan theorem yields Eq.~\eqref{eq:projector-bound}. The displayed $m^{-1}$ and $m^{-2}$ deterioration is therefore a whitening-conditioning effect rather than an unspecified perturbation constant.
+
+\section{Exact multiclass pairwise counterexample}
+\label{app:counterexample}
+
+Let the conditional commuting states on $A$ and $B$ be represented by column-stochastic matrices
+\begin{equation}
+U=\begin{pmatrix}
+3/5&1/5&1/5\\
+3/10&3/5&1/5\\
+1/10&1/5&3/5
+\end{pmatrix},\quad
+V=\begin{pmatrix}
+1/2&1/5&3/10\\
+3/10&1/2&1/5\\
+1/5&3/10&1/2
+\end{pmatrix},
+\end{equation}
+with $p=(3/10,3/10,2/5)$.  The observed two-view distribution is
+\begin{equation}
+P=U\diag(p)V^\top
+=\begin{pmatrix}
+63/500&1/10&47/500\\
+21/200&133/1000&14/125\\
+99/1000&87/1000&18/125
+\end{pmatrix}.
+\end{equation}
+The same $P$ admits
+\begin{equation}
+p'=(39/200,81/200,2/5),
+\end{equation}
+\begin{align}
+U'&=\begin{pmatrix}
+3/5&41/135&1/5\\
+3/10&47/90&1/5\\
+1/10&47/270&3/5
+\end{pmatrix},\\[1mm]
+V'&=\begin{pmatrix}
+43/65&1/5&3/10\\
+5/26&1/2&1/5\\
+19/130&3/10&1/2
+\end{pmatrix}.
+\end{align}
+The two decompositions are not related by a common permutation.  For the first ensemble, the optimal local MAP decision on the computational-basis outcome of $A$ is $(0,1,2)$; for the second it is $(1,1,2)$.  The accompanying script verifies $\|P-P'\|_{\max}<1.4\times10^{-17}$ in double precision.
+
+\section{Earlier agreement-richness guarantee}
+\label{app:agreement}
+
+For completeness, we record the output-level theorem used by the earlier EIQL objective.  Let $Z_1,\ldots,Z_m\in\cZ$, $|\cZ|=L$, and define
+\begin{equation}
+D=\max_{i<j}P(Z_i\neq Z_j),\qquad
+R=\min_jH(Z_j).
+\end{equation}
+Let
+\begin{equation}
+\xi_{ij}=\sum_xp_x\TV\left(P_{Z_iZ_j|x},P_{Z_i|x}P_{Z_j|x}\right),
+\qquad
+\xi=\max_{i<j}\xi_{ij}.
+\end{equation}
+If $D\le\epsilon$, $R\ge H(X)-\kappa$, and $\xi\le\alpha$, define $\delta=\epsilon+\alpha$.  For $\delta\le1-1/L$, each fragment admits a deterministic $g_j(X)$ with
+\begin{equation}
+P[Z_j\neq g_j(X)]\le\delta
+\end{equation}
+and
+\begin{equation}
+H(X|Z_j)\le\kappa+h_2(\delta)+\delta\log_2(L-1).
+\end{equation}
+For a cq state with $\nu=\max_{i<j}I(E_i:E_j|X)$ bits, data processing and Pinsker give $\alpha\le\sqrt{(\ln2)\nu/2}$ for the post-measurement total-variation defect.  This theorem is conditional on a system-referenced common-cause model and does not self-certify that the common record is about $S$.
+
+For a fixed finite candidate class of size $Q$, Hoeffding and a union bound provide a uniform finite-shot certificate.  At the earlier numerical operating point $Q=500$, $m=4$, $L=2$, $n=600$, and failure probability $0.05$, the disagreement deviation bound is $0.1016$ and the entropy-continuity penalty is $0.4777$ bit, making the resulting worst-case certificate effectively vacuous at a target disagreement of $0.10$.  This is why the present paper replaces the generic finite-class theorem, where possible, by geometry-dependent results such as Theorem~\ref{thm:finite-binary}.
+
+\section{Reproducibility notes}
+
+The ancillary reproducibility bundle contains the scripts and numerical tables used for the unequal-prior binary counterexample, finite-shot Theorem~\ref{thm:finite-binary} study, conditional-correlation stress test, exact multiclass counterexample and three-view recovery experiment, microscopic five-fragment collision-model phase diagram, near-SBS spectral-anchor check, support-geometry checks, and conditioning stress test.  The Chen-derived and resource-comparison figures are simulation outputs from the earlier EIQL study.  No private experimental data are used.  The Chen benchmark is based on the published architecture and hidden local-basis simulations; the fidelity-proxy and noise studies in the earlier version are not reconstructions of the laboratory channel.
+
+
