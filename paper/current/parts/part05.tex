@@ -1,0 +1,128 @@
+For pure records $b_{\mathcal B}=1$, so redundancy improves this lower bound.  For mixed rank-deficient product records with a local positive-eigenvalue floor $b<1$, one has $b_{\mathcal B}\ge b^k$, which competes with the improving factor $1-(r-1)c^k$.  Fig.~\ref{fig:supporttradeoff} illustrates the resulting finite optimum in a representative bound.
+
+\begin{figure*}[t]
+\centering
+\begin{minipage}{0.43\textwidth}
+\centering
+\includegraphics[width=\linewidth]{fig4a_support_geometry_illustration.pdf}
+\end{minipage}\hfill
+\begin{minipage}{0.54\textwidth}
+\centering
+\includegraphics[width=\linewidth]{redundancy_conditioning_tradeoff.pdf}
+\end{minipage}
+\caption{Support geometry reveals a second effect of redundancy.  (a) Product records suppress the support coherence $c_{\mathcal B}\le c^k$, driving conditional support spaces toward a stable direct sum.  (b) In a representative $r=4$ model, pure-record marginal conditioning improves monotonically, whereas for mixed records the positive-eigenvalue factor $b^k$ competes with geometric separation and produces a finite optimum.  Readout geometry can therefore improve while full-state whitening becomes harder.}
+\label{fig:supporttradeoff}
+\end{figure*}
+
+This distinction also proves that fidelity alone cannot classify the witness requirement.  For every root fidelity $f\in(0,1)$, a pair of nonidentical pure qubit states and a pair of full-rank commuting qubit states can be chosen to have the same $f$.  Under product repetition both fidelities decay as $f^k$, but the pure supports remain one-dimensional and independent while the full-rank supports remain identical to the full Hilbert space.  Intrinsic readability and latent-structure identifiability are therefore distinct resources.
+
+\subsection{The SBS boundary: two-fragment spectral anchoring}
+\label{sec:sbs}
+
+The exact SBS limit is a structured boundary where lower-order identifiability can reappear.  Consider
+\begin{equation}
+\sigma_{AB}=\sum_{x=1}^{r}p_x\alpha_x^A\otimes\beta_x^B,
+\label{eq:orth-record}
+\end{equation}
+with pairwise orthogonal supports of the $B$ records.  Let $\Pi_x$ denote the corresponding support projectors.  Choose a known Hermitian probe $H_A$ and define
+\begin{equation}
+h_x=\tr(H_A\alpha_x).
+\end{equation}
+From the two-fragment state define
+\begin{align}
+\sigma_B&=\tr_A\sigma_{AB},\\
+K_B(H_A)&=\tr_A[(H_A\otimes I)\sigma_{AB}],\\
+L_B(H_A)&=\sigma_B^{-1/2}K_B(H_A)\sigma_B^{-1/2}
+\end{align}
+on the occupied support.
+
+\begin{proposition}[Orthogonal-record spectral anchoring]
+\label{prop:spectral-anchor}
+For Eq.~\eqref{eq:orth-record},
+\begin{equation}
+L_B(H_A)=\sum_xh_x\Pi_x.
+\label{eq:spectral-anchor}
+\end{equation}
+If the $h_x$ are pairwise distinct, the spectral projectors of $L_B$ are exactly the environmental record-support projectors $\Pi_x$, up to relabeling. Because those supports are pairwise orthogonal, the projectors $\{\Pi_x\}$ constitute a perfect local decoder on the occupied record subspace.
+\end{proposition}
+
+Thus a second environmental fragment and one generic separating probe identify the record-support projectors; orthogonality then makes those projectors a perfect multiclass decoder on the occupied subspace.  The algebra is related to matrix-pencil and whitening constructions familiar from latent-variable methods; the physical content is that the SBS support structure itself supplies the missing lower-order identifiability.
+
+\paragraph{Measurement resources.}
+The construction is an identifiability result, not a claim of measurement-free or universally cheap recovery.  Operationally one must estimate the operator $\sigma_B$ on its occupied support and the weighted operator
+\begin{equation}
+K_B(H_A)=\tr_A[(H_A\otimes I)\rho_{AB}].
+\end{equation}
+A generic high-dimensional $B$ may therefore require a tomographically complete operator interface on the relevant support.  If physics or hardware restricts $\sigma_B$ and $K_B$ to a known low-dimensional operator subspace, only observables spanning that subspace are needed.  The theorem concerns the structured two-fragment uniqueness mechanism; its measurement cost is model- and hardware-dependent.
+
+A robust version follows from inverse-square-root and spectral-projector perturbation.  Suppose an actual state $\rho_{AB}$ obeys
+\begin{equation}
+\|\rho_{AB}-\sigma_{AB}\|_1\le\eps,
+\end{equation}
+that the ideal occupied marginal satisfies $\sigma_B\ge mI$, and that $\|H_A\|_\infty\le1$.  If $\eps<m/2$, then a conservative bound is
+\begin{equation}
+\|\widehat L_B-L_B\|_\infty
+\le
+\frac{\sqrt2\,\eps}{m}
++\frac{(2+\sqrt2)\eps}{m^2}
+=:\eta_{\rm SBS}.
+\label{eq:sbs-perturb}
+\end{equation}
+If the ideal probe gap $g=\min_{x\neq x'}|h_x-h_{x'}|$ satisfies $\eta_{\rm SBS}<g/2$, Davis-Kahan perturbation gives
+\begin{equation}
+\|\widehat\Pi_x-\Pi_x\|_\infty
+\le\frac{2\eta_{\rm SBS}}{g}.
+\label{eq:projector-bound}
+\end{equation}
+Support leakage can be handled by thresholded whitening.  The numerical check in Fig.~\ref{fig:nearsbs} confirms the expected linear small-perturbation behavior for a three-class example.
+
+\begin{figure*}[t]
+\centering
+\begin{minipage}{0.48\textwidth}
+\centering
+\includegraphics[width=\linewidth]{fig5a_sbs_anchor_illustration.pdf}
+\end{minipage}\hfill
+\begin{minipage}{0.48\textwidth}
+\centering
+\includegraphics[width=\linewidth]{near_sbs_projector_stability.pdf}
+\end{minipage}
+\caption{Structured two-fragment recovery at and near the SBS boundary.  (a) Orthogonal conditional supports make $\sigma_B$ and the probe-weighted operator $K_B(H_A)$ simultaneously block diagonal.  Whitening converts the probe expectations $h_x$ into eigenvalues whose spectral projectors are the record projectors $\Pi_x$.  (b) Under a generic bipartite perturbation, the recovered projector error is approximately linear over the tested range, consistent with the spectral-gap perturbation bound.}
+\label{fig:nearsbs}
+\end{figure*}
+
+\subsection{A unified view of readability and identifiability}
+\label{sec:geometries}
+
+The preceding results separate three geometries that should not be conflated.
+
+First, intrinsic quantum readability can be quantified by the root-fidelity matrix
+\begin{equation}
+F^{(j)}_{xx'}=\left\|\sqrt{\rho_{j,x}}\sqrt{\rho_{j,x'}}\right\|_1.
+\end{equation}
+For product records, fidelity is multiplicative:
+\begin{equation}
+F^{(B)}_{xx'}=\prod_{j\in B}F^{(j)}_{xx'}.
+\end{equation}
+This controls how well an unrestricted quantum measurement could distinguish already-specified records.
+
+Second, a restricted hardware family $\cH$ has its own readability.  For a measurement $M$ with output laws $p,q$, define the Bhattacharyya affinity $b_M=\sum_y\sqrt{p_yq_y}$ and
+\begin{equation}
+b_{\cH}(\rho,\sigma)=\inf_{M\in\cH}b_M(\rho,\sigma).
+\end{equation}
+The Fuchs-Caves characterization gives $\inf_M b_M=f(\rho,\sigma)$ over unrestricted measurements \cite{fuchscaves1996}; restricted hardware satisfies $b_{\cH}\ge f$.  For product measurements, the classical affinity also multiplies.  The gap between $b_{\cH}$ and $f$ is a hardware readability penalty.
+
+Third, unlabeled statistical identifiability is governed by response geometry, such as the response Gram matrix and its coherence $\mu$.  A measurement that minimizes Bhattacharyya overlap need not be the measurement that minimizes response coherence or maximizes total variation.  Therefore no universal scalar chain $f\mapsto b_{\cH}\mapsto\mu$ should be assumed.
+
+The same separation appears at the state-structure level.  Fidelity can decay exponentially while full-rank conditional states retain identical supports, so the support-transversality route never activates.  Conversely, rank-deficient or pure records can become structurally identifiable through support separation before they are close to orthogonal.  The number of witnesses required therefore depends both on \emph{what object is being identified} and on the joint readability/rank geometry of the records.
+
+\subsection{Causal boundary: semantics and intervention}
+\label{sec:causal}
+
+Passive structural recovery and system-specific meaning are different tasks.  The following impossibility statement identifies the missing resource before the intervention construction supplies one causal anchor.
+
+
+\subsubsection{Passive environment-only semantic nonidentifiability}
+\label{sec:semantic-nogo}
+
+Before asking how well a record can be reconstructed, one must ask whether passive environmental data can attach system-specific meaning to it.  The answer is negative in general.
+

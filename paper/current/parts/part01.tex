@@ -1,0 +1,46 @@
+
+
+\title{\texorpdfstring{Identifiability of Environmental Records in Quantum Darwinism:\\Learning Readouts from Redundancy and Intervention}{Identifiability of Environmental Records in Quantum Darwinism: Learning Readouts from Redundancy and Intervention}}
+
+\author{Marwan AIT HADDOU}
+\email{aithaddou.marwan@outlook.com}
+\affiliation{Independent Researcher, Morocco}
+\thanks{ORCID: \href{https://orcid.org/0009-0008-1734-1721}{0009-0008-1734-1721}}
+
+\date{August 16, 2026}
+
+\begin{abstract}
+Quantum Darwinism explains how pointer information becomes redundantly accessible through environmental fragments. We study the inverse problem in which those records exist but the local readout convention is unknown. We separate three targets: identifying a decoder, identifying the latent record ensemble, and assigning the recovered record to the designated system. For equal-prior binary records of arbitrary finite dimension, two fragments determine the local Helstrom contrast directions from the rank-one connected environmental operator; a known unequal prior already admits exact counterexamples. For multiclass records, two-fragment data determine a discriminant operator subspace, while a third generic view or structured spectrum-broadcast support can provide stronger recovery. Product redundancy improves response and support conditioning, but passive environmental observations still cannot universally establish system semantics; a trusted intervention supplies the missing causal anchor. Finite-shot simulations reproduce the expected binary $N^{-1/2}$ scaling, show controlled degradation with conditional inter-fragment correlations, and exhibit the predicted two-view/three-view multiclass transition; a microscopic collision model further displays a resource-dependent decoder-recovery boundary without direct system readout. These results characterize what an observer can learn about an unknown environmental readout, why redundancy can improve that inference, and where causal side information remains indispensable.
+\end{abstract}
+
+\maketitle
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.98\textwidth]{fig1_conceptual_illustration.pdf}
+\caption{\textbf{Conceptual overview of environment-induced quantum learning (EIQL).}
+(a) In the environment-as-witness picture, a system $S$ imprints redundant records into independently accessible fragments $E_1,E_2,E_3,\ldots$; objectivity concerns the repeated availability of this information, not whether an observer already knows the local measurement that reads it.
+(b) EIQL treats each local readout as initially unknown.  Same-event fragment outcomes can nevertheless exhibit a common latent record, so the readout convention becomes an inference target rather than an assumed calibration.
+(c) Passive environmental statistics need not determine the physical meaning of that latent record: a system-linked variable $X$ and a nuisance/common cause $N$ can generate observationally identical fragment outputs.
+(d) A trusted intervention $\Lambda$ on the designated system supplies an external response coordinate.  Components whose environmental records change coherently with the intervention can then be grouped as system-linked, whereas nuisance-only components lack the same intervention-response profile.  The illustration therefore summarizes the three distinct questions studied in the paper: whether a record exists, whether its readout is identifiable, and whether the recovered record can be assigned system-specific semantics.}
+\label{fig:overview}
+\end{figure*}
+
+\section{Introduction}
+\label{sec:introduction}
+
+Quantum Darwinism explains how information about stable system observables can become redundantly available in disjoint environmental fragments, allowing many observers to access a common classical record without directly measuring the system \cite{zurek2003,zurek2009,zurek2022,zurek2025book}.  This account addresses the emergence and proliferation of records, but an operational inverse problem remains: an observer may encounter a redundant environmental record without knowing the local measurement that reads it.  In that setting the readout itself is an object of inference.
+
+We formulate this problem as environment-induced quantum learning (EIQL) and distinguish three logically different tasks: identifying a decoder that reads the latent record, identifying the latent environmental ensemble, and determining whether the reconstructed latent variable should be attributed specifically to the designated system rather than to an observationally equivalent common cause.  The distinction matters because these targets have different identifiability thresholds.  A decoder can be identifiable when the full ensemble is not, and a latent environmental structure can be reconstructible while its system-specific semantics remain impossible to establish from passive data alone.
+
+Our main results give a hierarchy of positive and negative statements.  For equal-prior binary records, two conditionally independent fragments determine the local Helstrom contrast directions through a rank-one connected environmental operator, whereas a known unequal prior already permits exact decoder ambiguity.  For multiclass records, two views determine a discriminant operator subspace but do not generically determine the decoder; a third generic view restores latent identifiability under standard tensor conditions, while spectrum-broadcast support structure provides a distinct structured two-view route.  We also show that redundancy changes the conditioning of the inverse problem by multiplying response overlaps and support coherences.  Finally, passive environmental statistics cannot universally assign system semantics, while a trusted intervention can supply the causal information needed to break that ambiguity.
+
+The analytical results are complemented by finite-resource simulations matched to the theory.  They test binary statistical scaling, controlled violations of conditional independence, the two-view/three-view multiclass transition, near-SBS spectral recovery, and a microscopic system--environment collision model with restricted environmental measurements and readout noise.  An external Quantum-Darwinism architecture and a resource comparison are retained as secondary benchmarks.  The simulations are used as operational stress tests, not as hardware validation.
+
+\section{Related Work}
+\label{sec:related}
+
+The conceptual background is the environment-as-witness picture of decoherence and Quantum Darwinism.  Decoherence and environment-induced superselection explain why a restricted family of alternatives remains stable under environmental monitoring, while Quantum Darwinism studies the redundant accessibility of information about those alternatives \cite{zurek2003,zurek2009,zurek2022,zurek2025book}.  Repeatable information transfer is selective because arbitrary quantum states cannot be cloned or broadcast \cite{wootters1982,barnum1996}.  Ollivier, Poulin, and Zurek formalized the environment as a communication channel whose redundantly readable observables must be compatible with the pointer structure \cite{ollivier2004,ollivier2005}.  Spectrum broadcast structure (SBS) and strong Quantum Darwinism sharpen this state-level picture by combining a classical system variable with locally distinguishable records in many environmental fragments \cite{korbicz2014,horodecki2015,le2019,korbicz2021}.
+
+A growing literature makes the role of the readout increasingly operational.  Brand\~ao, Piani, and Horodecki show that many indirect observers are effectively restricted to classical information about a common system measurement \cite{brandao2015}.  Touil and collaborators quantify accessible information, amplification, and consensus between observers of environmental fragments \cite{touil2022,girolami2022,touil2025}.  Fu studies uniqueness of the system observable leaving redundant environmental imprints \cite{fu2021}; Doucet and Deffner connect measurement compatibility to Darwinistic classicality \cite{doucet2025}; Kiely \emph{et al.} analyze how the environmental measurement controls metrological precision \cite{kiely2026}; and recent Petz-recovery work asks how modeled system information can be reconstructed from fragments \cite{torvinen2026}.  These works motivate treating the environmental measurement as part of the physical inference problem rather than as a fixed implementation detail.
+
