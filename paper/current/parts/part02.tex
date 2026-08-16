@@ -1,0 +1,137 @@
+Several mathematical ingredients used here are established independently of Quantum Darwinism.  Helstrom discrimination, fidelity bounds, and Fuchs--Caves measurements are standard quantum-information tools \cite{helstrom1976,fuchscaves1996,fuchsvandegraaf1999}.  Three-view latent-variable identifiability and tensor decomposition are classical results \cite{allman2009,anandkumar2014,bhaskara2014,sidiropoulos2017}, and uniqueness results are known for suitable decompositions of separable states \cite{alfsen2012}.  Self-consistent state and measurement tomography also reconstructs unknown quantum measurements under calibration structures different from the one considered here \cite{stephens2021,cattaneo2023}.  The present work therefore does not claim the first use of tensor methods, unknown-measurement reconstruction, or the observation that redundancy selects classical information.
+
+The distinction is the inverse question being asked.  Standard Darwinistic analyses begin from a specified system observable or readout model and study the accessibility, redundancy, or objectivity of its records.  Here the local environmental decoder is not supplied.  We ask which parts of that readout structure are identifiable from environmental correlations themselves, how redundancy conditions the inference, and what additional causal information is required before a recovered latent record can be assigned to the designated system.
+
+\section{Theory}
+\label{sec:theory}
+
+\subsection{Operational model and identification targets}
+\label{sec:model}
+
+\begin{definition}[Three identification targets]
+For a latent record variable $X$ encoded in environmental fragments, we distinguish:
+\begin{enumerate}[leftmargin=1.45em,itemsep=1pt,topsep=2pt]
+\item \emph{decoder identification}: determine a local POVM, up to operational equivalence on the occupied record states, that optimally or near-optimally reads $X$;
+\item \emph{ensemble identification}: determine the latent probabilities and conditional environmental record states, up to a common relabeling of $X$;
+\item \emph{semantic identification}: determine that the reconstructed latent variable is specifically a property of the designated system $S$, rather than an observationally equivalent shared nuisance cause.
+\end{enumerate}
+\end{definition}
+
+The three targets are deliberately separated.  Binary decoder recovery can succeed without reconstructing each conditional state individually, while a reconstructed latent environmental structure need not determine its system-specific meaning.
+
+Let $X\in\{1,\ldots,r\}$ denote the classical pointer record produced by a system-environment interaction.  The ideal branching architecture is
+\begin{equation}
+\rho_{SE_1\cdots E_m}
+=\sum_{x=1}^{r}p_x\ketbra{x}_S\otimes
+\rho_{x}^{E_1}\otimes\cdots\otimes\rho_x^{E_m},
+\label{eq:branching}
+\end{equation}
+with $p_x>0$.  We use this form as a structural model of conditionally independent records; exact SBS adds pairwise orthogonality of the conditional record supports.  Branching states occupy a central role in the modern structural analysis of Quantum Darwinism \cite{touil2024branch}.
+
+An observer need not perform informationally complete tomography.  On fragment $E_j$, let $S_j$ denote a known hardware setting, drawn according to a known distribution $q_j(s)$, and let $Y_j$ be its outcome.  The compound observation
+\begin{equation}
+O_j=(S_j,Y_j)
+\end{equation}
+has conditional response vector
+\begin{equation}
+a_{j,x}(s,y)=q_j(s)\tr[M^{j,s}_y\rho_x^{E_j}].
+\label{eq:compound-response}
+\end{equation}
+The family $\{M^{j,s}\}$ can be a finite set of projective axes, Pauli measurements, a shallow measurement circuit family, or an informationally complete probe family.  The primary target is the induced response law on the available hardware, not full state reconstruction.  Throughout, a \emph{fragment} is a physical environmental subsystem $E_j$, a \emph{view} is the observation derived from one fragment or fragment block, and a collection of fragments is denoted by $\mathcal B$ to avoid confusion with the physical subsystem label $B$ used later in the SBS construction.  We use Schatten norms: $\|A\|_1$ is the trace norm, $\|A\|_2$ the Hilbert--Schmidt norm, and $\|A\|_\infty$ the operator norm.
+
+When a block $\mathcal B$ consists of conditionally independent fragments, its response factorizes:
+\begin{equation}
+a_{\mathcal B,x}=\bigotimes_{j\in\mathcal B}a_{j,x}.
+\label{eq:block-factor}
+\end{equation}
+This simple product structure is the source of the redundancy effects developed below.
+
+
+\subsection{Binary records: two fragments identify the Helstrom decoder}
+\label{sec:binary}
+
+The semantic no-go does not prevent structural decoder learning.  The cleanest result occurs for equal-prior binary records, where decoder identification is strictly easier than reconstructing the two conditional states.
+
+Let $X\in\{0,1\}$ with equal prior.  For two conditionally independent fragments $E_i,E_j$,
+\begin{equation}
+\rho_{ij}=\frac12\rho_{i,0}\otimes\rho_{j,0}
++\frac12\rho_{i,1}\otimes\rho_{j,1}.
+\label{eq:binary-state}
+\end{equation}
+Define
+\begin{equation}
+\Delta_i=\rho_{i,1}-\rho_{i,0},\qquad
+\Delta_j=\rho_{j,1}-\rho_{j,0},
+\end{equation}
+and the connected environmental operator
+\begin{equation}
+\Omega_{ij}=\rho_{ij}-\rho_i\otimes\rho_j.
+\end{equation}
+
+\begin{theorem}[Two-fragment Helstrom identifiability]
+\label{thm:binary-helstrom}
+If $\Delta_i\neq0$ and $\Delta_j\neq0$, then
+\begin{equation}
+\Omega_{ij}=\frac14\Delta_i\otimes\Delta_j.
+\label{eq:connected-rank1}
+\end{equation}
+Thus $\Omega_{ij}$ has operator-Schmidt rank one, and its normalized Schmidt factors are $\pm\Delta_i/\|\Delta_i\|_2$ and $\pm\Delta_j/\|\Delta_j\|_2$.  For equal priors, these factors determine the minimum-error Helstrom measurement on each fragment, up to the common outcome relabeling.
+\end{theorem}
+
+\begin{proof}
+Expanding $\rho_i=(\rho_{i,0}+\rho_{i,1})/2$ and the analogous $\rho_j$ yields Eq.~\eqref{eq:connected-rank1}.  The nonzero elementary tensor has Schmidt rank one in the Hilbert-Schmidt operator spaces.  The equal-prior Helstrom operator on fragment $i$ is $(\rho_{i,1}-\rho_{i,0})/2$, so multiplication by an unknown positive scale does not change its positive and negative eigenspaces.\qedhere
+\end{proof}
+
+
+For qubits, Eq.~\eqref{eq:connected-rank1} reduces to the rank-one Pauli cross-correlation identity used in our earlier numerical studies.  The arbitrary-dimensional form shows that the mechanism is not a Bloch-sphere accident.
+
+\subsubsection{Equal priors are an identifiability boundary}
+
+The equal-prior hypothesis is not merely algebraic convenience.  Let $P(X=1)=p$ and define
+\begin{equation}
+\bar\rho_i=(1-p)\rho_{i,0}+p\rho_{i,1},
+\qquad
+\Delta_i=\rho_{i,1}-\rho_{i,0}.
+\end{equation}
+The connected operator still factorizes,
+\begin{equation}
+\Omega_{ij}=p(1-p)\Delta_i\otimes\Delta_j,
+\label{eq:unequal-connected}
+\end{equation}
+but the local Helstrom operator is
+\begin{equation}
+\Gamma_i=p\rho_{i,1}-(1-p)\rho_{i,0}
+=(2p-1)\bar\rho_i+2p(1-p)\Delta_i.
+\label{eq:unequal-helstrom}
+\end{equation}
+Thus the scale ambiguity $\Delta_i\mapsto s\Delta_i$, $\Delta_j\mapsto s^{-1}\Delta_j$ can change the decision boundary while leaving the complete two-fragment state unchanged.
+
+\begin{proposition}[Known unequal prior does not generically identify the binary decoder]
+\label{prop:unequal-prior}
+There exist two conditionally independent binary qubit record models with the same known prior $p\neq1/2$, the same complete two-fragment state $\rho_{ij}$, and different optimal local Helstrom decoders.
+\end{proposition}
+
+\begin{proof}
+Take $p=0.7$ and $\bar\rho_i=\bar\rho_j=I/2$.  Model A has
+\begin{equation}
+\Delta_i^{(A)}=0.4\sigma_z,\qquad
+\Delta_j^{(A)}=0.6\sigma_z,
+\end{equation}
+whereas model B has
+\begin{equation}
+\Delta_i^{(B)}=0.6\sigma_z,\qquad
+\Delta_j^{(B)}=0.4\sigma_z.
+\end{equation}
+The corresponding conditional states
+$\rho_{0}=\bar\rho-p\Delta$ and
+$\rho_{1}=\bar\rho+(1-p)\Delta$ are positive in both models.  Equation~\eqref{eq:unequal-connected} gives the same
+\begin{equation}
+\rho_{ij}
+=\frac{I\otimes I}{4}
++0.0504\,\sigma_z\otimes\sigma_z
+\end{equation}
+and the same marginals.  On fragment $i$,
+\begin{align}
+\Gamma_i^{(A)}&=0.2I+0.168\sigma_z,\\
+\Gamma_i^{(B)}&=0.2I+0.252\sigma_z.
+\end{align}
