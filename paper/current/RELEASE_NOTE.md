@@ -1,0 +1,1 @@
+Final release assets: high-quality compiled PDF and complete source archive with figures. Tag: prxq-final-2026-08-16.
