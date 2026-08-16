@@ -1,0 +1,144 @@
+The first operator is positive definite, so the minimum-error strategy always guesses $X=1$; the second has one positive and one negative eigenvalue, so its optimum is a nontrivial $\sigma_z$ measurement.  The observed two-fragment state therefore does not determine the local decoder.\qedhere
+\end{proof}
+
+Theorem~\ref{thm:binary-helstrom} is consequently a structured equal-prior result, not a generic binary two-fragment theorem.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.98\textwidth]{fig2_binary_illustration.pdf}
+\caption{\textbf{Two-fragment binary identifiability and its equal-prior boundary.}
+(a) The relevant observable object is built from \emph{same-event} paired fragment data: the two local records must originate from the same physical realization so that the connected correlation $\Omega_{ij}=\rho_{ij}-\rho_i\otimes\rho_j$ is retained.  Pairing records from independent events removes precisely this correlation.
+(b) For equal-prior conditionally independent binary records, $\Omega_{ij}$ has operator-Schmidt rank one and its two local factors point along the contrast operators $\Delta_i$ and $\Delta_j$.  Their signs are common outcome relabelings, so the positive/negative eigenspaces determine the local Helstrom readouts without reconstructing $\rho_{i,0}$ and $\rho_{i,1}$ separately.  This is the paper's basic example in which decoder identification is strictly easier than ensemble identification.
+(c) The conclusion is not generic once the prior is unequal.  Different latent decompositions can have the same complete two-fragment observation while redistributing the contrast scale between fragments; because the unequal-prior Helstrom operator also depends on that unresolved scale, the optimal local decision boundary can change.  Proposition~\ref{prop:unequal-prior} gives an exact qubit realization of the illustrated ambiguity.}
+\label{fig:binary-mechanism}
+\end{figure*}
+
+\subsubsection{Residual conditional correlations}
+
+The theorem has a direct robust extension.  Let $\rho_{ij|x}$ be the conditional two-fragment state and define
+\begin{equation}
+\chi_x=\rho_{ij|x}-\rho_{i|x}\otimes\rho_{j|x}.
+\end{equation}
+Then
+\begin{equation}
+\Omega_{ij}=\frac14\Delta_i\otimes\Delta_j+\bar\chi,
+\qquad
+\bar\chi=\frac{\chi_0+\chi_1}{2}.
+\label{eq:robust-connected}
+\end{equation}
+Let
+\begin{equation}
+\nu=I(E_i:E_j|X)
+\end{equation}
+be measured in bits.  Quantum Pinsker and Jensen imply
+\begin{equation}
+\|\bar\chi\|_2\le\|\bar\chi\|_1
+\le\sqrt{2\ln2\,\nu}=: \eta.
+\label{eq:cmi-noise}
+\end{equation}
+The rank-one signal in Eq.~\eqref{eq:robust-connected} has singular value
+\begin{equation}
+\lambda=\frac14\|\Delta_i\|_2\|\Delta_j\|_2.
+\end{equation}
+
+\begin{corollary}[Robust binary decoder direction]
+\label{cor:robust-binary}
+If $\eta<\lambda$, the leading operator-Schmidt directions $\widehat U_i,\widehat U_j$ of the observed connected operator obey
+\begin{equation}
+\sin\angle_{\rm HS}(\widehat U_i,\Delta_i)
+\le\frac{\eta}{\lambda-\eta},
+\label{eq:binary-angle}
+\end{equation}
+and likewise for $j$, after fixing the free common sign.
+\end{corollary}
+
+This isolates the relevant physical ratio: small conditional mutual information is useful only relative to the product of the local record contrasts.  Weak records can be unstable even when the common-cause defect is absolutely small.
+
+\subsubsection{Finite-shot arbitrary-dimensional decoder learning}
+
+A finite-shot theorem can be stated without a free inverse-condition parameter.  Suppose each \emph{same physical event} produces a paired local snapshot $(R_i,R_j)$, with the two local measurement randomizations independent conditional on that event, and
+\begin{equation}
+\mathbb E[R_i|X=x]=\rho_{i,x},\qquad
+\|R_i\|_2\le B_i,
+\end{equation}
+and similarly for $j$.  The same-event pairing is essential: $\mathbb E[R_i\otimes R_j]$ retains the environmental correlation, whereas snapshots taken from different physical realizations factorize into $\mathbb E R_i\otimes\mathbb E R_j$.  Finite-dimensional classical-shadow constructions are one example of such unbiased snapshot schemes \cite{huang2020}.  The concentration statement below is not dimension-free in an operational sense; the measurement dimension and inverse-channel conditioning enter through $B_i,B_j$.  For example, a product of independent single-qubit Pauli-shadow snapshots on a $q$-qubit fragment has single-shot Hilbert-Schmidt norm $B=5^{q/2}$, so the closed-form bound inherits exponential $5^q$ factors unless additional locality or observable structure is exploited.
+
+From $2N$ same-event realizations, pair consecutive events and define
+\begin{equation}
+K_s=\frac12(R_i^{2s-1}-R_i^{2s})\otimes(R_j^{2s-1}-R_j^{2s}),
+\qquad
+\widehat\Omega=\frac1N\sum_{s=1}^{N}K_s.
+\end{equation}
+Then $\mathbb E\widehat\Omega=\Omega$ and, with probability at least $1-\beta$,
+\begin{equation}
+\|\widehat\Omega-\Omega\|_2\le
+\frac{2B_iB_j}{\sqrt N}\left[1+\sqrt{2\ln(1/\beta)}\right]
+=:e_N(\beta).
+\label{eq:finite-omega}
+\end{equation}
+
+\begin{theorem}[Finite-shot binary readout]
+\label{thm:finite-binary}
+Under the exact binary product model, if $e_N(\beta)<\lambda$, then with probability at least $1-\beta$,
+\begin{equation}
+\sin\angle_{\rm HS}(\widehat U_i,\Delta_i)
+\le\frac{e_N(\beta)}{\lambda-e_N(\beta)}.
+\end{equation}
+For target angular error $0<\eps\le1$, it is sufficient to use $n=2N$ physical events with
+\begin{equation}
+ n\ge128\,
+\frac{B_i^2B_j^2}{\eps^2\|\Delta_i\|_2^2\|\Delta_j\|_2^2}
+(1+\eps)^2
+\left[1+\sqrt{2\ln(1/\beta)}\right]^2.
+\label{eq:finite-binary-n}
+\end{equation}
+With conditional correlations, the same statement holds after replacing $e_N$ by $e_N+\sqrt{2\ln2\,\nu}$.
+\end{theorem}
+
+The proof is a Hilbert-space bounded-difference concentration argument followed by Wedin perturbation theory; details are in Appendix~\ref{app:proofs}.  Eq.~\eqref{eq:finite-binary-n} exposes the expected divergence when the local records become indistinguishable.  It should not be read as a universal dimension-independent shadow theorem: the bounded-snapshot constants carry the measurement-interface cost.
+
+\subsection{Multiclass records: subspace, ambiguity, and a third view}
+\label{sec:multiclass}
+
+For $r>2$, two fragments retain useful structure but no longer determine the optimal decoder generically.  Let
+\begin{equation}
+\rho_{ij}=\sum_{x=1}^{r}p_x\rho_{i,x}\otimes\rho_{j,x},
+\end{equation}
+with
+\begin{equation}
+\bar\rho_i=\sum_xp_x\rho_{i,x},\qquad
+\delta_{i,x}=\rho_{i,x}-\bar\rho_i.
+\end{equation}
+Then
+\begin{equation}
+\Omega_{ij}=\rho_{ij}-\bar\rho_i\otimes\bar\rho_j
+=\sum_xp_x\delta_{i,x}\otimes\delta_{j,x}.
+\label{eq:multi-connected}
+\end{equation}
+Define the local discriminant operator subspace
+\begin{equation}
+\cS_i=\Span\{\delta_{i,1},\ldots,\delta_{i,r}\}.
+\end{equation}
+Since $\sum_xp_x\delta_{i,x}=0$, one has $\dim\cS_i\le r-1$.
+
+\begin{theorem}[Two-view discriminant-subspace identifiability]
+\label{thm:subspace}
+If $\dim\cS_i=\dim\cS_j=r-1$, then the left and right operator-Schmidt supports of $\Omega_{ij}$ are exactly $\cS_i$ and $\cS_j$, respectively.
+\end{theorem}
+
+The subspace is operationally meaningful.  If a Hermitian effect $M=M_{\parallel}+M_{\perp}$ is decomposed with $M_{\perp}\perp\cS_i$, then
+\begin{equation}
+\tr(M_{\perp}\rho_{i,x})=\tr(M_{\perp}\bar\rho_i)
+\end{equation}
+for every $x$.  Thus $M_{\perp}$ carries no class-dependent signal.  Pairwise environmental correlations can therefore identify the entire local operator subspace in which a useful multiclass decoder must live, even when they do not identify the individual class states.
+
+\subsubsection{Pairwise data do not determine the multiclass decoder in general}
+
+The remaining coordinates inside $\cS_i$ matter for minimum-error discrimination.  The failure already occurs for commuting states.  Appendix~\ref{app:counterexample} gives an exact three-class construction in which the same two-view diagonal state admits two distinct latent decompositions.  The first has optimal local MAP rule $(0,1,2)$, while the second has $(1,1,2)$.  Because the states commute, these MAP rules are the minimum-error quantum decoders.  Hence
+\begin{equation}
+\begin{aligned}
+&\text{pairwise discriminant-subspace identification}\\[-1mm]
+&\hspace{18mm}\not\Rightarrow\ \text{multiclass decoder identification}.
+\end{aligned}
+\end{equation}
+
