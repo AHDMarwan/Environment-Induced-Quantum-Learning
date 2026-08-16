@@ -1,0 +1,1 @@
+The compiled submission PDF and complete source bundle are attached to the GitHub release `prxq-final-2026-08-16`.
